@@ -5,8 +5,8 @@ pip install rdkit
 
 
 Important:
-Don't do  $ conda update --all -c conda-forge -y because this will install a PyTorch version without CUDA \
+Don't do  $ conda update --all -c conda-forge -y because this will install a PyTorch version without CUDA 
 
 
 # Verification
-To check that CUDA, PyTorch and RDKit are working run 01/version.py
+To check that CUDA, PyTorch and RDKit are working, run 01/version.py
