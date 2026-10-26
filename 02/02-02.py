@@ -1,5 +1,5 @@
 # RDKit: Rational Discovery Kit
-# Open-source cheminformatics and machine learning toolkit for analyzing, manipulating, and calculating properties of chemical structures
+# Open-source cheminformatics and ML library for analisys and calculation of the properties of chemical structures
 
 from rich.console import Console
 from rdkit.Chem import Descriptors
@@ -8,10 +8,13 @@ from rdkit.Chem import PandasTools
 # RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
 RO5_PROPS = ['MolWt', 'NumHAcceptors', 'NumHDonors', 'MolLogP']
 
+# Specs (commercial company) dataset of chemical screening compounds for life science and pharma
+SPECS_SDF_PATH = "data/Specs.sdf.gz"
+
 # Molecular descriptors are useful for interpreting a molecule’s properties and for encoding a molecule’s chemical information
 def list_available_descriptors(limit=3):
     descriptors = Descriptors._descList
-    console.print(f"\nRDKit has {len(descriptors)} molecular descriptors available", style="gold1", highlight=False)
+    console.print(f"\nRDKit has {len(descriptors)} molecular descriptors", style="gold1", highlight=False)
     
     if limit > 0:
         print(f"Showing first {min(limit, len(descriptors))} descriptors:")
@@ -46,7 +49,9 @@ def calculate_ro5_descriptors(df, mol_col='mol'):
 # Load a SDF (Structure Data File) to a Pandas dataframe
 console = Console()
 console.print("\nLoading SDF", style="gold1", highlight=False)
-specs = PandasTools.LoadSDF("data/Specs.sdf.gz", smilesName='smiles', molColName=None)[["PUBCHEM_SUBSTANCE_ID", "smiles"]]
+
+# Create the Pandas dataframe and filter it so it has only two columns
+specs = PandasTools.LoadSDF(SPECS_SDF_PATH, smilesName='smiles', molColName=None)[["PUBCHEM_SUBSTANCE_ID", "smiles"]]
 print(f"Total entries loaded: {len(specs)}")
 
 # Generate RDKit Mol objects from SMILES...

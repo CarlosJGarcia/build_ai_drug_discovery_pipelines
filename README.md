@@ -22,3 +22,10 @@ In the context of the Build AI Drug Discovery Pipelines book, cheminformatics re
 It is the practice of taking raw chemical representations, like the SMILES strings and SDF datasets you and computing quantitative properties or molecular fingerprints, like for example the Lipinski Rule of Five descriptors. 
 This mathematical translation is required, because AI and ML models can't interpret raw chemical drawings. They require the structured numerical arrays that cheminformatics libraries like RDKit can generate. They can use these to discover new pharmaceutical drugs.
 
+
+Life Sciences: Scientific discipline dealing with human, animal, or plant life. Includes biotechnology, genomics, medical devices, agriculture and botany
+The goal of life sciences is to understand biological processes and apply that knowledge
+Pharma: Highly regulated industry dedicated to discovering, testing, producing, and marketing medications
+Pharma relies heavily on chemistry, biologics and genomics to create treatments and vaccines for human or animal diseases.
+Every pharmaceutical company is a life sciences company, but not the other way around
+
