@@ -3,8 +3,7 @@
 
 from rich.console import Console
 from rdkit import RDLogger
-from rdkit.Chem import PandasTools
-from rdkit.Chem import Descriptors
+from rdkit.Chem import PandasTools, Descriptors
 
 
 # RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
