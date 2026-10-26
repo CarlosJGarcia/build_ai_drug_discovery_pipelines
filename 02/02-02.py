@@ -2,8 +2,10 @@
 # Open-source cheminformatics and ML library for analisys and calculation of the properties of chemical structures
 
 from rich.console import Console
-from rdkit.Chem import Descriptors
+from rdkit import RDLogger
 from rdkit.Chem import PandasTools
+from rdkit.Chem import Descriptors
+
 
 # RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
 RO5_PROPS = ['MolWt', 'NumHAcceptors', 'NumHDonors', 'MolLogP']
@@ -48,9 +50,10 @@ def calculate_ro5_descriptors(df, mol_col='mol'):
 
 # Load a SDF (Structure Data File) to a Pandas dataframe
 console = Console()
-console.print("\nLoading SDF", style="gold1", highlight=False)
+console.print("\nLoading Specs SDF dataset", style="gold1", highlight=False)
 
 # Create the Pandas dataframe and filter it so it has only two columns
+RDLogger.DisableLog('rdApp.*')
 specs = PandasTools.LoadSDF(SPECS_SDF_PATH, smilesName='smiles', molColName=None)[["PUBCHEM_SUBSTANCE_ID", "smiles"]]
 print(f"Total entries loaded: {len(specs)}")
 
@@ -58,7 +61,7 @@ print(f"Total entries loaded: {len(specs)}")
 PandasTools.AddMoleculeColumnToFrame(specs, 'smiles', 'mol')
 
 # List RDKit Molecular descriptors
-RDKIT_DESCRIPTORS = list_available_descriptors(limit=10)
+RDKIT_DESCRIPTORS = list_available_descriptors(limit=5)
 
 # Calculate RDKit Molecular descriptors
 specs = calculate_ro5_descriptors(specs)
