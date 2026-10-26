@@ -3,7 +3,7 @@
 
 from rich.console import Console
 from rdkit import RDLogger
-from rdkit.Chem import PandasTools, Descriptors
+from rdkit.Chem import PandasTools, Descriptors, FilterCatalog
 
 
 # RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
@@ -64,6 +64,19 @@ def apply_lipinski_filter(df):
     return df, compliant_df, violated_df
 
 
+# Filter molecules by structure, applying PAINS and BRENK filters
+def apply_pains_brenk_filters(df, mol_col='mol'):
+    df_copy = df.copy()
+    filter_params = FilterCatalog.FilterCatalogParams()    
+    filter_params.AddCatalog(filter_params.FilterCatalogs.PAINS)
+    filter_params.AddCatalog(filter_params.FilterCatalogs.BRENK)
+    catalog = FilterCatalog.FilterCatalog(filter_params)
+    df_copy.loc[:, 'PAINS_BRENK_match'] = df_copy[mol_col].apply(catalog.HasMatch)    
+    df_copy.loc[:, 'PAINS_BRENK_compliant'] = ~df_copy['PAINS_BRENK_match']
+    filtered_df = df_copy[df_copy['PAINS_BRENK_compliant']]
+    return df_copy, filtered_df
+
+
 # Load a SDF (Structure Data File) to a Pandas dataframe
 console = Console()
 console.print("\nLoading Specs SDF dataset", style="gold1", highlight=False)
@@ -89,5 +102,11 @@ print(specs[["PUBCHEM_SUBSTANCE_ID", "smiles"] + RO5_PROPS].head())
 console.print("\nFilter the molecules that violate Lipinski’s Ro5 criteria", style="gold1", highlight=False)
 specs, specs_ro5_compliant, specs_ro5_violated = apply_lipinski_filter(specs)
 print(f"Total entries remaining: {len(specs_ro5_compliant):,}")
+
+
+# Filter molecules by structure
+console.print("\nNow filter the molecules with PAINS & BRENK criteria", style="gold1", highlight=False)
+specs_ro5_compliant, specs_ro5_pains_brenk_compliant = apply_pains_brenk_filters(specs_ro5_compliant)
+print(f"Total entries remaining: {len(specs_ro5_pains_brenk_compliant):,}")
 
 print()
