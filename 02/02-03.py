@@ -76,30 +76,29 @@ def apply_pains_brenk_filters(df, mol_col='mol'):
     filtered_df = df_copy[df_copy['PAINS_BRENK_compliant']]
     return df_copy, filtered_df
 
-"""
-# Filter molecules by REOS (Rapid Elimination Of Swill)
-def load_glaxo_alerts():
-    alerts_df = pd.read_csv(GLAXO_ALERTS_PATH)
-    alerts_df["ROMol"] = alerts_df.smarts.apply(MolFromSmarts)    
-        
-    invalid_count = alerts_df.ROMol.isnull().sum()
-    if invalid_count > 0:    
-        print(f"Warning: {invalid_count} invalid SMARTS patterns")
-        alerts_df = alerts_df.dropna(subset=['ROMol'])
-    print(f"Loaded {len(alerts_df)} Glaxo Wellcome structural alerts")
-    return alerts_df
-"""
 
 # Filter molecules by REOS (Rapid Elimination Of Swill)
 def load_glaxo_alerts():
-    # Add sep='\t' to correctly parse the file
-    alerts_df = pd.read_csv(GLAXO_ALERTS_PATH, sep='\t')
-    alerts_df["ROMol"] = alerts_df.smarts.apply(MolFromSmarts)    
+    # Remove sep='\t' so Pandas defaults to comma separation
+    alerts_df = pd.read_csv(GLAXO_ALERTS_PATH)
+    
+    # Clean column names: strip hidden spaces and make everything lowercase
+    alerts_df.columns = alerts_df.columns.str.strip().str.lower()
+    
+    # Safety check: If 'smarts' is still missing, fallback to the first column
+    if 'smarts' not in alerts_df.columns:
+        print(f"Column 'smarts' not found. Available columns: {list(alerts_df.columns)}")
+        # Rename the first column to 'smarts' just in case there is no header
+        alerts_df.rename(columns={alerts_df.columns[0]: 'smarts'}, inplace=True)
+
+    # Use bracket notation instead of dot notation
+    alerts_df["ROMol"] = alerts_df["smarts"].apply(MolFromSmarts)    
         
     invalid_count = alerts_df.ROMol.isnull().sum()
     if invalid_count > 0:    
         print(f"Warning: {invalid_count} invalid SMARTS patterns")
         alerts_df = alerts_df.dropna(subset=['ROMol'])
+        
     print(f"Loaded {len(alerts_df)} Glaxo Wellcome structural alerts")
     return alerts_df
 
