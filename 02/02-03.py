@@ -1,6 +1,7 @@
 # RDKit: Rational Discovery Kit
 # Open-source cheminformatics and ML library for analisys and calculation of the properties of chemical structures
 
+# Future improvement: replace pandas with pandarallel for faster execution
 
 import pandas as pd
 from rich.console import Console
