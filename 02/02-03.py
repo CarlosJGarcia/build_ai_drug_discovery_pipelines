@@ -8,7 +8,7 @@ from rdkit import RDLogger
 from rdkit.Chem import PandasTools, Descriptors, FilterCatalog, Draw, MolFromSmarts
 
 
-RO5_PROPS = ['MolWt', 'NumHAcceptors', 'NumHDonors', 'MolLogP']. # RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
+RO5_PROPS = ['MolWt', 'NumHAcceptors', 'NumHDonors', 'MolLogP']  # RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
 SPECS_SDF_PATH = "data/Specs.sdf.gz"                             # Specs (commercial company) dataset of chemical screening compounds for life science and pharma
 GLAXO_ALERTS_PATH ="data/glaxo_structural_alerts.csv"
 
