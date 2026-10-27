@@ -76,7 +76,7 @@ def apply_pains_brenk_filters(df, mol_col='mol'):
     filtered_df = df_copy[df_copy['PAINS_BRENK_compliant']]
     return df_copy, filtered_df
 
-
+"""
 # Filter molecules by REOS (Rapid Elimination Of Swill)
 def load_glaxo_alerts():
     alerts_df = pd.read_csv(GLAXO_ALERTS_PATH)
@@ -88,7 +88,20 @@ def load_glaxo_alerts():
         alerts_df = alerts_df.dropna(subset=['ROMol'])
     print(f"Loaded {len(alerts_df)} Glaxo Wellcome structural alerts")
     return alerts_df
+"""
 
+# Filter molecules by REOS (Rapid Elimination Of Swill)
+def load_glaxo_alerts():
+    # Add sep='\t' to correctly parse the file
+    alerts_df = pd.read_csv(GLAXO_ALERTS_PATH, sep='\t')
+    alerts_df["ROMol"] = alerts_df.smarts.apply(MolFromSmarts)    
+        
+    invalid_count = alerts_df.ROMol.isnull().sum()
+    if invalid_count > 0:    
+        print(f"Warning: {invalid_count} invalid SMARTS patterns")
+        alerts_df = alerts_df.dropna(subset=['ROMol'])
+    print(f"Loaded {len(alerts_df)} Glaxo Wellcome structural alerts")
+    return alerts_df
 
 
 # Load a SDF (Structure Data File) to a Pandas dataframe
