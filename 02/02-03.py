@@ -1,16 +1,16 @@
 # RDKit: Rational Discovery Kit
 # Open-source cheminformatics and ML library for analisys and calculation of the properties of chemical structures
 
+
+import pandas as pd
 from rich.console import Console
 from rdkit import RDLogger
-from rdkit.Chem import PandasTools, Descriptors, FilterCatalog
+from rdkit.Chem import PandasTools, Descriptors, FilterCatalog, Draw, MolFromSmarts
 
 
-# RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
-RO5_PROPS = ['MolWt', 'NumHAcceptors', 'NumHDonors', 'MolLogP']
-
-# Specs (commercial company) dataset of chemical screening compounds for life science and pharma
-SPECS_SDF_PATH = "data/Specs.sdf.gz"
+RO5_PROPS = ['MolWt', 'NumHAcceptors', 'NumHDonors', 'MolLogP']. # RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
+SPECS_SDF_PATH = "data/Specs.sdf.gz"                             # Specs (commercial company) dataset of chemical screening compounds for life science and pharma
+GLAXO_ALERTS_PATH ="data/glaxo_structural_alerts.csv"
 
 # Molecular descriptors are useful for interpreting a molecule’s properties and for encoding a molecule’s chemical information
 def list_available_descriptors(limit=3):
@@ -77,6 +77,20 @@ def apply_pains_brenk_filters(df, mol_col='mol'):
     return df_copy, filtered_df
 
 
+# Filter molecules by REOS (Rapid Elimination Of Swill)
+def load_glaxo_alerts():
+    alerts_df = pd.read_csv(GLAXO_ALERTS_PATH)
+    alerts_df["ROMol"] = alerts_df.smarts.apply(MolFromSmarts)    
+        
+    invalid_count = alerts_df.ROMol.isnull().sum()
+    if invalid_count > 0:    
+        print(f"Warning: {invalid_count} invalid SMARTS patterns")
+        alerts_df = alerts_df.dropna(subset=['ROMol'])
+    print(f"Loaded {len(alerts_df)} Glaxo Wellcome structural alerts")
+    return alerts_df
+
+
+
 # Load a SDF (Structure Data File) to a Pandas dataframe
 console = Console()
 console.print("\nLoading Specs SDF dataset", style="gold1", highlight=False)
@@ -108,5 +122,10 @@ print(f"Total entries remaining: {len(specs_ro5_compliant):,}")
 console.print("\nNow filter the molecules with PAINS & BRENK criteria", style="gold1", highlight=False)
 specs_ro5_compliant, specs_ro5_pains_brenk_compliant = apply_pains_brenk_filters(specs_ro5_compliant)
 print(f"Total entries remaining: {len(specs_ro5_pains_brenk_compliant):,}")
+
+# Filter molecules by REOS (Rapid Elimination Of Swill)
+console.print("\nLoad Glaxo Wellcome structural alerts", style="gold1", highlight=False)
+glaxo_alerts = load_glaxo_alerts()
+
 
 print()
