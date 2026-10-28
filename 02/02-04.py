@@ -27,7 +27,7 @@ console.print("\nBinary fingerprint", style="gold1", highlight=False)
 print(f"Total bits: {len(binary_fp)}")
 print(f"Number of 'On' bits: {binary_fp.GetNumOnBits()}")
 
-print("\nCount fingerprint", style="gold1", highlight=False)
+console.print("\nCount fingerprint", style="gold1", highlight=False)
 nonzero_elements = count_fp.GetNonzeroElements()
 print(f"Total unique substructures found: {len(nonzero_elements)}")
 # Show a sample of the structural features found (Bit ID: Count)
