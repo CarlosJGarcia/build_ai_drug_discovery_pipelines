@@ -12,6 +12,20 @@ def gen_mol(smiles_string):
         raise ValueError(f"Failed to generate a molecule from SMILES: {smiles_string}")
     return mol
 
+ 
+def generate_morgan_fingerprints(df, mol_col='mol', radius=2, n_bits=2048):    
+    df_copy = df.copy()
+    fp_col_name = f"morgan_fp_r{radius}_b{n_bits}"
+    morgan_generator = GetMorganGenerator(radius=radius, fpSize=n_bits)
+    
+    def compute_fingerprint(mol):
+        if mol is None: return None
+        return morgan_generator.GetFingerprint(mol)
+    
+    df_copy.loc[:,fp_col_name] = df_copy[mol_col].apply(compute_fingerprint)
+    return df_copy, fp_col_name
+
+
 # Define your example molecule (e.g., Aspirin)
 ASPIRIN = "CC(=O)OC1=CC=CC=C1C(=O)O"
 CAFFEINE = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
