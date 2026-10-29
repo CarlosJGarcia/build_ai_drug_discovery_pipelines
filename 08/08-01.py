@@ -8,6 +8,10 @@ import torch.optim as optim                       # Optimization algorithms
 from torch.utils.data import Dataset, DataLoader  # Datasets and data loading
 from rich.console import Console
 
+# Enable TF32 for performance on RTX 5090
+torch.backends.cudnn.allow_tf32 = True
+torch.backends.cuda.matmul.allow_tf32 = True
+
 console = Console()
 console.print("\nVersions and device selection", style="gold1", highlight=False)
 print(torch.__version__)
@@ -36,5 +40,21 @@ print(tensor_2d)
 print(f"Data type: {tensor_2d.dtype}")
 print(f"Stored on: {tensor_2d.device}")
 
+# Adding operation
+console.print("\nAdding operation", style="gold1", highlight=False)
+tensor_df_mod = tensor_2d + 2
+print(tensor_df_mod)
+
+# Shape and reshape
+console.print("\nPytorch two-dimensional tensor (matrix):", style="gold1", highlight=False)
+tensor_2d = torch.tensor([[1, 2, 3], [4, 5, 6]])
+tensor_2d = tensor_2d.to(device)
+tensor_2d = tensor_2d.to(torch.float32)
+print(tensor_2d)
+print(f"Shape: {tensor_2d.shape}")
+console.print("\nReshape from 2x3 to 3x2", style="gold1", highlight=False)
+tensor_2d = tensor_2d.reshape(3, 2)
+print(tensor_2d)
+print(f"Shape: {tensor_2d.shape}")
 
 print()
