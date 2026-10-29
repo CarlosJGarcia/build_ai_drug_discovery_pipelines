@@ -1,10 +1,12 @@
 # Molecular fingerprinting: Encode the strucure of a molecule to represent it as a UUID number
 
-from rdkit import Chem
+from rdkit.Chem import AllChem
 from rich.console import Console
+from rdkit import Chem, DataStructs
 from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
 
-def genmol(smiles_string):
+
+def gen_mol(smiles_string):
     mol = Chem.MolFromSmiles(smiles_string)
     if mol is None:
         raise ValueError(f"Failed to generate a molecule from SMILES: {smiles_string}")
@@ -15,7 +17,7 @@ ASPIRIN = "CC(=O)OC1=CC=CC=C1C(=O)O"
 CAFFEINE = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
 
 console = Console()
-example_mol = genmol(CAFFEINE)
+example_mol = gen_mol(CAFFEINE)
 
 # Fingerprinting
 morgan_gen = GetMorganGenerator(radius=2, fpSize=2048)
