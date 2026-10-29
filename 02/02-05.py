@@ -157,8 +157,15 @@ print(f"Total entries remaining: {len(specs_ro5_pains_brenk_compliant):,}")
 console.print("\nLoad Glaxo Wellcome structural alerts", style="gold1", highlight=False)
 glaxo_alerts = load_glaxo_alerts()
 
+console.print("\nApply Glaxo structural alerts", style="gold1", highlight=False)
+specs_glaxo_compliant = apply_glaxo_alerts(specs_ro5_pains_brenk_compliant, glaxo_alerts)
+print(f"Total entries remaining: {len(specs_glaxo_compliant):,}")
 
+"""
 # Molecular molecules by fingerprinting
-specs_filtered, fp_col_name = generate_morgan_fingerprints(specs_filtered)
+console.print("\nFilter by fingerprinting", style="gold1", highlight=False)
+specs_filtered, fp_col_name = generate_morgan_fingerprints(specs_ro5_pains_brenk_compliant)
+print(f"Total entries remaining: {len(specs_filtered):,}")
+"""
 
 print()
