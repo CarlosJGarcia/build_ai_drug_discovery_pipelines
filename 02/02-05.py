@@ -5,8 +5,9 @@
 
 import pandas as pd
 from rich.console import Console
-from rdkit import RDLogger
-from rdkit.Chem import PandasTools, Descriptors, FilterCatalog, Draw, MolFromSmarts
+from rdkit import RDLogger, DataStructs
+from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
+from rdkit.Chem import PandasTools, Descriptors, FilterCatalog, Draw, MolFromSmarts, AllChem
 
 
 RO5_PROPS = ['MolWt', 'NumHAcceptors', 'NumHDonors', 'MolLogP']  # RO5_PROPS Python list containing the string names of the four RDKit descriptors used for Lipinski's Rule of Five
@@ -103,6 +104,22 @@ def load_glaxo_alerts():
     print(f"Loaded {len(alerts_df)} Glaxo Wellcome structural alerts")
     return alerts_df
 
+# Generate a Morgan fingerprint for a molecule
+def generate_morgan_fingerprints(    
+    df, mol_col='mol', radius=2, n_bits=2048    
+):    
+    df_copy = df.copy()
+    fp_col_name = f"morgan_fp_r{radius}_b{n_bits}"
+    morgan_generator = GetMorganGenerator(radius=radius, fpSize=n_bits)
+    
+    def compute_fingerprint(mol):
+        if mol is None: return None
+        return morgan_generator.GetFingerprint(mol)
+    
+    df_copy.loc[:,fp_col_name] = \
+        df_copy[mol_col].apply(compute_fingerprint)
+    return df_copy, fp_col_name
+
 
 # Load a SDF (Structure Data File) to a Pandas dataframe
 console = Console()
@@ -140,5 +157,8 @@ print(f"Total entries remaining: {len(specs_ro5_pains_brenk_compliant):,}")
 console.print("\nLoad Glaxo Wellcome structural alerts", style="gold1", highlight=False)
 glaxo_alerts = load_glaxo_alerts()
 
+
+# Molecular molecules by fingerprinting
+specs_filtered, fp_col_name = generate_morgan_fingerprints(specs_filtered)
 
 print()
