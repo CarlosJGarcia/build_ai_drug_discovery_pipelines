@@ -1,37 +1,21 @@
 # Molecular fingerprinting: Encode the strucure of a molecule to represent it as a UUID number
 
-from rdkit.Chem import AllChem
+from rdkit import Chem
 from rich.console import Console
-from rdkit import Chem, DataStructs
 from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
 
-
-def gen_mol(smiles_string):
+def genmol(smiles_string):
     mol = Chem.MolFromSmiles(smiles_string)
     if mol is None:
         raise ValueError(f"Failed to generate a molecule from SMILES: {smiles_string}")
     return mol
-
- 
-def generate_morgan_fingerprints(df, mol_col='mol', radius=2, n_bits=2048):    
-    df_copy = df.copy()
-    fp_col_name = f"morgan_fp_r{radius}_b{n_bits}"
-    morgan_generator = GetMorganGenerator(radius=radius, fpSize=n_bits)
-    
-    def compute_fingerprint(mol):
-        if mol is None: return None
-        return morgan_generator.GetFingerprint(mol)
-    
-    df_copy.loc[:,fp_col_name] = df_copy[mol_col].apply(compute_fingerprint)
-    return df_copy, fp_col_name
-
 
 # Define your example molecule (e.g., Aspirin)
 ASPIRIN = "CC(=O)OC1=CC=CC=C1C(=O)O"
 CAFFEINE = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
 
 console = Console()
-example_mol = gen_mol(CAFFEINE)
+example_mol = genmol(CAFFEINE)
 
 # Fingerprinting
 morgan_gen = GetMorganGenerator(radius=2, fpSize=2048)
