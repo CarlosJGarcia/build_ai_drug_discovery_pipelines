@@ -57,4 +57,12 @@ tensor_2d = tensor_2d.reshape(3, 2)
 print(tensor_2d)
 print(f"Shape: {tensor_2d.shape}")
 
+# Tensor (matrix) transposition and multiplication using pytorch native methods
+console.print("\nTransposition and multiplication:", style="gold1", highlight=False)
+tensor_2d_transposed = tensor_2d.T
+multiplied = tensor_2d.matmul(tensor_2d.T)
+print(f"Original: {tensor_2d}")
+print(f"Transposed: {tensor_2d_transposed}")
+print(f"Original x Transposed: {multiplied}")
+
 print()
