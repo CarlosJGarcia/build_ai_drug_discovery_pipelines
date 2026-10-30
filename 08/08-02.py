@@ -7,9 +7,22 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
-egfr_kinodata = pd.read_csv("data/CH08_EGFR-activities-chembl33.csv")
+import pandas as pd
+
+CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl33.csv"
+
+# Dataset import
+egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Specify ; instead of , as field separator and load file in memory to prevent a warning when fields have None as value 
+print("Todo bien")
+
+
+"""
 smiles = egfr_kinodata["compound_structures.canonical_smiles"]
 activities = pd.to_numeric(egfr_kinodata["activities.standard_value"], errors="coerce")
+
+
+
+
 train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
     
 train_smiles, val_smiles, train_activities, val_activities = train_test_split(train_smiles, train_activities, test_size=0.1, random_state=42)
@@ -34,3 +47,4 @@ evaluate_model(model, test_loader, criterion, device)
 
 torch.save(model.state_dict(), 'artifacts/ch08/kinase_binder_model.pth')
 print("Model saved successfully.")
+"""
