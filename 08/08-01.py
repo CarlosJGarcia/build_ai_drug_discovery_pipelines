@@ -1,5 +1,5 @@
 # PyTorch
-# When the Python script finishes, the Linux and the CUDA driver automatically reclaim all allocated memory, including RAM and VRAM
+# When the Python script finishes, the Linux and the CUDA driver automatically free all allocated memory, including RAM and VRAM
 # Deleting variables (del tensor_2d) or clearing the PyTorch cache (torch.cuda.empty_cache()) at the end is redundant and offers no benefit
 
 import torch  
@@ -8,7 +8,7 @@ import torch.optim as optim                       # Optimization algorithms
 from torch.utils.data import Dataset, DataLoader  # Datasets and data loading
 from rich.console import Console
 
-# Enable TF32 for performance on RTX 5090
+# Enable TF32 (Tensor Flow 32 floating poing format) for performance on RTX 5090
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True
 
