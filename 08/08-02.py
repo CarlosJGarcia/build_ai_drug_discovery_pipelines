@@ -7,7 +7,6 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
-import utils
 import pandas as pd
 from rdkit import Chem
 from collections import defaultdict
@@ -41,14 +40,16 @@ def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
 
 CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl33.csv.gz"
 
-# Dataset importc
+# Import dataset
 egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Specify ; instead of , as field separator and load file in memory to prevent a warning when fields have None as value 
 
-smiles = egfr_kinodata["Smiles"]
-activities = pd.to_numeric(egfr_kinodata["Standard Value"], errors="coerce")
+egfr_kinodata["Standard Value"] = pd.to_numeric(egfr_kinodata["Standard Value"], errors="coerce")
+clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])
 
-train_smiles, train_activities, test_smiles, test_activities = utils.scaffold_split(smiles, activities)
-train_smiles, val_smiles, train_activities, val_activities = utils.train_test_split(train_smiles, train_activities, test_size=0.1, random_state=42)
+smiles = clean_data["Smiles"]
+activities = clean_data["Standard Value"]
+train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
+
 
 
 print("Todo bien")

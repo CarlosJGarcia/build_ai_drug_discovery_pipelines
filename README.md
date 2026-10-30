@@ -30,6 +30,6 @@ Pharma relies heavily on chemistry, biologics and genomics to create treatments 
 Every pharmaceutical company is a life sciences company, but not the other way around
 
 
-Non-NLP task: A task that doesn't require Natural Langugae Processing and can be solved by traditional ML and DL neural networks
+Non-NLP task: A task that doesn't require Natural Language Processing and can be solved by traditional ML and DL neural networks
 
 
