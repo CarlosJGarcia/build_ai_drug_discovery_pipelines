@@ -9,9 +9,9 @@
 
 import pandas as pd
 
-CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl33.csv"
+CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl33.csv.gz"
 
-# Dataset import
+# Dataset importc
 egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Specify ; instead of , as field separator and load file in memory to prevent a warning when fields have None as value 
 print("Todo bien")
 
