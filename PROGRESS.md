@@ -11,6 +11,11 @@
 | 7. Unsupervised Learning: Repurposing Drugs, Curating Compounds & Screening Fragments | | | Scikit-learn |
 | 8. Introduction to Deep Learning | In Progress | | Pytorch |
 | 9. Structure-based Drug Design with Active Learning | | | |
+| 10. Generative Models for De Novo Design  | | | |
+| 11. Graph  | | | |
+| 12. xx  | | | |
+| 13. xx  | | | |
+
 ---
 ### Notes
 - Use this section to add any additional notes or insights as you learn.
