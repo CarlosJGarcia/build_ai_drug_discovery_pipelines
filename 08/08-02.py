@@ -7,6 +7,8 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
+# ML is 80% about clearing data and the other 20% is complaning about clearing data
+
 import pandas as pd
 from rdkit import Chem
 from collections import defaultdict
@@ -38,7 +40,7 @@ def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
             smiles.iloc[test_indices], activities.iloc[test_indices])
 
 
-CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl33.csv.gz"
+CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl37.csv.gz"
 
 # Import dataset
 egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Specify ; instead of , as field separator and load file in memory to prevent a warning when fields have None as value 
