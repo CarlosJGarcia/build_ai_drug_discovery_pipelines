@@ -7,26 +7,53 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
+import utils
 import pandas as pd
+from rdkit import Chem
+from collections import defaultdict
+from rdkit.Chem.Scaffolds import MurckoScaffold
+
+# Umplementation Bemis-Murcko scaffold split using RDKit
+def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
+    scaffolds = defaultdict(list)
+    smiles = smiles_series.reset_index(drop=True)
+    activities = activities_series.reset_index(drop=True)
+    
+    for i, smi in enumerate(smiles):
+        mol = Chem.MolFromSmiles(str(smi))
+        if mol:
+            scaffold = MurckoScaffold.MurckoScaffoldSmiles(mol=mol)
+            scaffolds[scaffold].append(i)
+            
+    scaffold_sets = sorted(scaffolds.values(), key=len, reverse=True)
+    train_indices, test_indices = [], []
+    train_cutoff = int(len(smiles) * train_fraction)
+    
+    for scaffold_group in scaffold_sets:
+        if len(train_indices) + len(scaffold_group) <= train_cutoff:
+            train_indices.extend(scaffold_group)
+        else:
+            test_indices.extend(scaffold_group)
+            
+    return (smiles.iloc[train_indices], activities.iloc[train_indices], 
+            smiles.iloc[test_indices], activities.iloc[test_indices])
+
 
 CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl33.csv.gz"
 
 # Dataset importc
 egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Specify ; instead of , as field separator and load file in memory to prevent a warning when fields have None as value 
+
+smiles = egfr_kinodata["Smiles"]
+activities = pd.to_numeric(egfr_kinodata["Standard Value"], errors="coerce")
+
+train_smiles, train_activities, test_smiles, test_activities = utils.scaffold_split(smiles, activities)
+train_smiles, val_smiles, train_activities, val_activities = utils.train_test_split(train_smiles, train_activities, test_size=0.1, random_state=42)
+
+
 print("Todo bien")
-
-
 """
-smiles = egfr_kinodata["compound_structures.canonical_smiles"]
-activities = pd.to_numeric(egfr_kinodata["activities.standard_value"], errors="coerce")
 
-
-
-
-train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
-    
-train_smiles, val_smiles, train_activities, val_activities = train_test_split(train_smiles, train_activities, test_size=0.1, random_state=42)
- 
 train_dataset = MoleculeDataset(train_smiles, train_activities)
 val_dataset = MoleculeDataset(val_smiles, val_activities)
 test_dataset = MoleculeDataset(test_smiles, test_activities)
