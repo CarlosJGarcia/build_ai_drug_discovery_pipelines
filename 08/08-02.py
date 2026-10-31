@@ -125,7 +125,7 @@ pd.DataFrame({"Smiles": train_smiles, "Standard Value": train_activities}).to_cs
 pd.DataFrame({"Smiles": val_smiles, "Standard Value": val_activities}).to_csv(validation_file_path, index=False)
 pd.DataFrame({"Smiles": test_smiles, "Standard Value": test_activities}).to_csv(test_file_path, index=False)
 
-console.print(f"Files saved successfully to {WRITE_PATH}/", style="gold1", highlight=False)
+console.print(f"Files saved successfully to {WRITE_PATH}:", style="gold1", highlight=False)
 print(f"- {train_file_path} ({train_smiles.shape[0]} rows)")
 print(f"- {validation_file_path} ({val_smiles.shape[0]} rows)")
 print(f"- {test_file_path} ({test_smiles.shape[0]} rows)")
