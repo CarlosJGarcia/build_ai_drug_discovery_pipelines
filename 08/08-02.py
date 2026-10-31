@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 from rdkit import Chem
 from rdkit import DataStructs
+from rich.console import Console
 from collections import defaultdict
 from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.Scaffolds import MurckoScaffold
@@ -82,10 +83,17 @@ class MoleculeDataset(Dataset):
 CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl37.csv.gz"
 
 # Import dataset
+console = Console()
+console.print(f"\nReading with Pandas ./{CHEMBL_EGFR_PATH}\n", style="gold1", highlight=False)
 egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Specify ; instead of , as field separator and load file in memory to prevent a warning when fields have None as value 
 
 egfr_kinodata["Standard Value"] = pd.to_numeric(egfr_kinodata["Standard Value"], errors="coerce")
 clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])
+
+console.print("Dataframe:", style="gold1", highlight=False)
+print(clean_data[["Smiles", "Standard Value"]])
+print()
+
 smiles = clean_data["Smiles"]
 activities = clean_data["Standard Value"]
 train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
