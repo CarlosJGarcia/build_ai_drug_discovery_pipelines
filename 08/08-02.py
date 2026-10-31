@@ -9,15 +9,32 @@
 
 # ML is 80% about clearing data and the other 20% is complaning about clearing data
 
+import numpy as np
 import pandas as pd
 from rdkit import Chem
 from collections import defaultdict
+from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.Scaffolds import MurckoScaffold
+from torch.utils.data import Dataset, DataLoader
+
+
+# import torch
+# import torch.nn as nn
+# import torch.optim as optim
+# from torch.optim.lr_scheduler import ReduceLROnPlateau
+
+
+
+
+# from rdkit import DataStructs
+
+
+
 
 # Umplementation Bemis-Murcko scaffold split using RDKit
 # Split 80/20 train/test
 # Posteriormente del 80, reservamos 10% para validación
- def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
+def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
     scaffolds = defaultdict(list)
     smiles = smiles_series.reset_index(drop=True)
     activities = activities_series.reset_index(drop=True)
@@ -46,14 +63,13 @@ def smiles_to_fp(smiles, fp_size=2048):
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return None
-    mfpgen = rdFingerprintGenerator.GetMorganGenerator(
-        radius=3, fpSize=fp_size
-    )
+    mfpgen = rdFingerprintGenerator.GetMorganGenerator(radius=3, fpSize=fp_size)
     fp = mfpgen.GetFingerprint(mol)
     arr = np.zeros((fp_size,), dtype=np.int8)
     DataStructs.ConvertToNumpyArray(fp, arr)
     return arr
  
+
 class MoleculeDataset(Dataset):
     def __init__(self, smiles, activities):
         self.smiles = smiles
@@ -78,8 +94,6 @@ clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])
 smiles = clean_data["Smiles"]
 activities = clean_data["Standard Value"]
 train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
-
-
 
 
 # Create MoleculeDataset objects for training, validation, and test data
