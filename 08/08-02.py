@@ -12,23 +12,16 @@
 import numpy as np
 import pandas as pd
 from rdkit import Chem
+from rdkit import DataStructs
 from collections import defaultdict
 from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from torch.utils.data import Dataset, DataLoader
 
-
 # import torch
 # import torch.nn as nn
 # import torch.optim as optim
 # from torch.optim.lr_scheduler import ReduceLROnPlateau
-
-
-
-
-# from rdkit import DataStructs
-
-
 
 
 # Umplementation Bemis-Murcko scaffold split using RDKit
@@ -100,7 +93,7 @@ train_smiles, train_activities, test_smiles, test_activities = scaffold_split(sm
 # Each dataset has SMILES strings and their corresponding pIC50 activities
 train_dataset = MoleculeDataset(train_smiles, train_activities)
 test_dataset = MoleculeDataset(test_smiles, test_activities)
-# val_dataset = MoleculeDataset(val_smiles, val_activities)
+val_dataset = MoleculeDataset(val_smiles, val_activities)
 
 print("Todo bien")
 """
