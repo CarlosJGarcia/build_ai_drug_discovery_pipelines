@@ -126,9 +126,13 @@ pd.DataFrame({"Smiles": val_smiles, "Standard Value": val_activities}).to_csv(va
 pd.DataFrame({"Smiles": test_smiles, "Standard Value": test_activities}).to_csv(test_file_path, index=False)
 
 console.print(f"Files saved successfully to {WRITE_PATH}:", style="gold1", highlight=False)
-print(f"- {train_file_path} ({train_smiles.shape[0]} rows)")
-print(f"- {validation_file_path} ({val_smiles.shape[0]} rows)")
-print(f"- {test_file_path} ({test_smiles.shape[0]} rows)")
+total_rows = clean_data.shape[0]
+train_pct = (train_smiles.shape[0] / total_rows) * 100
+val_pct = (val_smiles.shape[0] / total_rows) * 100
+test_pct = (test_smiles.shape[0] / total_rows) * 100
+print(f"- {train_file_path} ({train_smiles.shape[0]} rows, {train_pct:.1f}%)")
+print(f"- {validation_file_path} ({val_smiles.shape[0]} rows, {val_pct:.1f}%)")
+print(f"- {test_file_path} ({test_smiles.shape[0]} rows, {test_pct:.1f}%)")
 print(f"Total: {train_smiles.shape[0] + val_smiles.shape[0] + test_smiles.shape[0]}")
 print()
 
