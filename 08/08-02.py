@@ -1,4 +1,6 @@
 # Pytorch workflow
+# EGFR (Epidermal Growth Factor Receptor) activity dataset - highly specialized molecules (kinase inhibitors targeted for cancer research)
+# ML is 80% about clearing data and the other 20% is complaning about clearing data
 
 # 1. Data processing: Convert SMILES strings into tensors - numerical representations (e.g., Morgan fingerprints) that can be ingested by a neural network 
 # 2. Define the model: Structure of the neural network model, referred to as its architecture. Loss function, optimizer and learning rate scheduler. 
@@ -7,7 +9,6 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
-# ML is 80% about clearing data and the other 20% is complaning about clearing data
 
 import numpy as np
 import pandas as pd
@@ -94,12 +95,13 @@ console.print(f"\nReading with Pandas ./{CHEMBL_EGFR_PATH}\n", style="gold1", hi
 egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Specify ; instead of , as field separator and load file in memory to prevent a warning when fields have None as value 
 
 egfr_kinodata["Standard Value"] = pd.to_numeric(egfr_kinodata["Standard Value"], errors="coerce")
-clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])
-
+clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])    # Clean the data, remove the rows with NaN, etc.
 console.print("Dataframe:", style="gold1", highlight=False)
 print(clean_data[["Smiles", "Standard Value"]])
 print()
 
+# Split train/validation/test
+console.print("Split\n", style="gold1", highlight=False)
 smiles = clean_data["Smiles"]
 activities = clean_data["Standard Value"]
 train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
@@ -118,7 +120,6 @@ test_activities = test_activities.reset_index(drop=True)
 train_dataset = MoleculeDataset(train_smiles, train_activities)
 test_dataset = MoleculeDataset(test_smiles, test_activities)
 val_dataset = MoleculeDataset(val_smiles, val_activities)
-
 
 # Combine Series into DataFrames and save without the index
 pd.DataFrame({"Smiles": train_smiles, "Standard Value": train_activities}).to_csv(train_file_path, index=False)
