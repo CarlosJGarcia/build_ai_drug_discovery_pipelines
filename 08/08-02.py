@@ -15,7 +15,9 @@ from collections import defaultdict
 from rdkit.Chem.Scaffolds import MurckoScaffold
 
 # Umplementation Bemis-Murcko scaffold split using RDKit
-def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
+# Split 80/20 train/test
+# Posteriormente del 80, reservamos 10% para validación
+ def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
     scaffolds = defaultdict(list)
     smiles = smiles_series.reset_index(drop=True)
     activities = activities_series.reset_index(drop=True)
@@ -40,6 +42,32 @@ def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
             smiles.iloc[test_indices], activities.iloc[test_indices])
 
 
+def smiles_to_fp(smiles, fp_size=2048):
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return None
+    mfpgen = rdFingerprintGenerator.GetMorganGenerator(
+        radius=3, fpSize=fp_size
+    )
+    fp = mfpgen.GetFingerprint(mol)
+    arr = np.zeros((fp_size,), dtype=np.int8)
+    DataStructs.ConvertToNumpyArray(fp, arr)
+    return arr
+ 
+class MoleculeDataset(Dataset):
+    def __init__(self, smiles, activities):
+        self.smiles = smiles
+        self.activities = activities
+        self.fingerprints = [smiles_to_fp(s) for s in smiles]
+        
+    def __len__(self):
+        return len(self.smiles)
+    
+    def __getitem__(self, idx):
+        fp = torch.tensor(self.fingerprints[idx], dtype=torch.float32)
+        activity = torch.tensor([self.activities[idx]], dtype=torch.float32)
+        return fp, activity
+
 CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl37.csv.gz"
 
 # Import dataset
@@ -47,20 +75,23 @@ egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Spec
 
 egfr_kinodata["Standard Value"] = pd.to_numeric(egfr_kinodata["Standard Value"], errors="coerce")
 clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])
-
 smiles = clean_data["Smiles"]
 activities = clean_data["Standard Value"]
 train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
 
 
 
+
+# Create MoleculeDataset objects for training, validation, and test data
+# Each dataset has SMILES strings and their corresponding pIC50 activities
+train_dataset = MoleculeDataset(train_smiles, train_activities)
+test_dataset = MoleculeDataset(test_smiles, test_activities)
+# val_dataset = MoleculeDataset(val_smiles, val_activities)
+
 print("Todo bien")
 """
 
-train_dataset = MoleculeDataset(train_smiles, train_activities)
-val_dataset = MoleculeDataset(val_smiles, val_activities)
-test_dataset = MoleculeDataset(test_smiles, test_activities)
- 
+
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
