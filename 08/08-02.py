@@ -12,6 +12,7 @@
 import numpy as np
 import pandas as pd
 from rdkit import Chem
+from pathlib import Path
 from rdkit import DataStructs
 from rich.console import Console
 from collections import defaultdict
@@ -80,7 +81,12 @@ class MoleculeDataset(Dataset):
         activity = torch.tensor([self.activities[idx]], dtype=torch.float32)
         return fp, activity
 
-CHEMBL_EGFR_PATH ="data/EGFR-activities-chembl37.csv.gz"
+CHEMBL_EGFR_PATH ="data/raw/EGFR-activities-chembl37.csv.gz"
+
+WRITE_PATH = "data/processed"
+train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
+validation_file_path = Path(WRITE_PATH) / "EGFR-validation.csv"
+test_file_path = Path(WRITE_PATH) / "EGFR-test.csv"
 
 # Import dataset
 console = Console()
@@ -99,16 +105,34 @@ activities = clean_data["Standard Value"]
 train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
 train_smiles, val_smiles, train_activities, val_activities = train_test_split(train_smiles, train_activities, test_size=0.1, random_state=42)
 
+# Reset indices for PyTorch compatibility
+train_smiles = train_smiles.reset_index(drop=True)
+train_activities = train_activities.reset_index(drop=True)
+val_smiles = val_smiles.reset_index(drop=True)
+val_activities = val_activities.reset_index(drop=True)
+test_smiles = test_smiles.reset_index(drop=True)
+test_activities = test_activities.reset_index(drop=True)
+
 # Create MoleculeDataset objects for training, validation, and test data
 # Each dataset has SMILES strings and their corresponding pIC50 activities
 train_dataset = MoleculeDataset(train_smiles, train_activities)
 test_dataset = MoleculeDataset(test_smiles, test_activities)
 val_dataset = MoleculeDataset(val_smiles, val_activities)
 
-print("Todo bien")
+
+# Combine Series into DataFrames and save without the index
+pd.DataFrame({"Smiles": train_smiles, "Standard Value": train_activities}).to_csv(train_file_path, index=False)
+pd.DataFrame({"Smiles": val_smiles, "Standard Value": val_activities}).to_csv(validation_file_path, index=False)
+pd.DataFrame({"Smiles": test_smiles, "Standard Value": test_activities}).to_csv(test_file_path, index=False)
+
+console.print(f"Files saved successfully to {WRITE_PATH}/", style="gold1", highlight=False)
+print(f"- {train_file_path} ({train_smiles.shape[0]} rows)")
+print(f"- {validation_file_path} ({val_smiles.shape[0]} rows)")
+print(f"- {test_file_path} ({test_smiles.shape[0]} rows)")
+print(f"Total: {train_smiles.shape[0] + val_smiles.shape[0] + test_smiles.shape[0]}")
+print()
+
 """
-
-
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
