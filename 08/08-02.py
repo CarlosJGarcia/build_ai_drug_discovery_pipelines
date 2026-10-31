@@ -17,6 +17,8 @@ from collections import defaultdict
 from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from torch.utils.data import Dataset, DataLoader
+from sklearn.model_selection import train_test_split  # En lugar de definir la función, usamos esta que gestiona mejor los edge cases
+
 
 # import torch
 # import torch.nn as nn
@@ -87,7 +89,7 @@ clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])
 smiles = clean_data["Smiles"]
 activities = clean_data["Standard Value"]
 train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
-
+train_smiles, val_smiles, train_activities, val_activities = train_test_split(train_smiles, train_activities, test_size=0.1, random_state=42)
 
 # Create MoleculeDataset objects for training, validation, and test data
 # Each dataset has SMILES strings and their corresponding pIC50 activities
