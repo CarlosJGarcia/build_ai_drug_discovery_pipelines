@@ -10,6 +10,7 @@
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
 import torch
+from pathlib import Path
 from rich.console import Console
 
 
@@ -17,7 +18,7 @@ from rich.console import Console
 import numpy as np
 import pandas as pd
 from rdkit import Chem
-from pathlib import Path
+
 from rdkit import DataStructs
 
 from collections import defaultdict
@@ -147,14 +148,14 @@ print()
 console = Console()
 
 
-# Determine the classification accuracies across various datasets estimated from 10 batches for efficiency:
-console.print(f"\nDetermine the classification accuracy", style="gold1")
+# Initialize PyTorch Device 
+console.print(f"\nInitialize Pytorch device", style="gold1")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if torch.cuda.is_available():
-        console.print(f"Loading model on GPU: {torch.cuda.get_device_name(0)}", style="bright_blue", highlight=False)
+        console.print(f"CUDA enabled, GPU {torch.cuda.get_device_name(0)}\n", style="bright_blue", highlight=False)
 else:
-        console.print(f"CUDA not available. Loading model on CPU.", style="gold1") 
-print("Todo bien")
+        console.print(f"CUDA not available, using CPU.\n", style="gold1") 
+print("Todo bien\n")
 
 """
 train_dataset = SpamDataset(csv_file=train_file_path, max_length=None, tokenizer=tokenizer)
