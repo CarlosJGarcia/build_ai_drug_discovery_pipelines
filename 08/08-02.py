@@ -88,6 +88,23 @@ class MoleculeDataset(Dataset):
         return fp, activity
 
 
+# Kinase Binder Neural Network Architecture
+class KinaseBinderNN(nn.Module):
+    def __init__(self, input_size=2048):
+        super(KinaseBinderNN, self).__init__()
+        self.fc1 = nn.Linear(input_size, 512)
+        self.fc2 = nn.Linear(512, 256)
+        self.fc3 = nn.Linear(256, 1)
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.2)
+        
+    def forward(self, x):
+        x = self.dropout(self.relu(self.fc1(x)))
+        x = self.dropout(self.relu(self.fc2(x)))
+        x = self.fc3(x)
+        return x
+
+
 WRITE_PATH = "data/processed"
 train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
 validation_file_path = Path(WRITE_PATH) / "EGFR-validation.csv"
@@ -124,25 +141,15 @@ train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-print("\nTodo bien. DataLoaders ready for training loop.")
 
-
-
-"""
-train_dataset = SpamDataset(csv_file=train_file_path, max_length=None, tokenizer=tokenizer)
-print("Number of tokens in the longest sequence:", train_dataset.max_length)
-
-val_dataset = SpamDataset(csv_file=validation_file_path, max_length=train_dataset.max_length, tokenizer=tokenizer)
-test_dataset = SpamDataset(csv_file=test_file_path, max_length=train_dataset.max_length, tokenizer=tokenizer)
-"""
-
-"""
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
- 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# Instance the KinaseBinder Neural Network class
 model = KinaseBinderNN().to(device)
+
+
+print("\nTodo bien.")
+
+"""
+
  
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
