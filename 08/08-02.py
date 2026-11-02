@@ -9,21 +9,25 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
-
+import torch
 import numpy as np
 import pandas as pd
 from rdkit import Chem
+
 from pathlib import Path
 from rdkit import DataStructs
 from rich.console import Console
-from collections import defaultdict
 from rdkit.Chem import rdFingerprintGenerator
-from rdkit.Chem.Scaffolds import MurckoScaffold
 from torch.utils.data import Dataset, DataLoader
+
+
+"""
+from collections import defaultdict
+from rdkit.Chem.Scaffolds import MurckoScaffold
 from sklearn.model_selection import train_test_split  # En lugar de definir la función, usamos esta que gestiona mejor los edge cases
 
 
-# import torch
+
 # import torch.nn as nn
 # import torch.optim as optim
 # from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -56,6 +60,7 @@ def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
     return (smiles.iloc[train_indices], activities.iloc[train_indices], 
             smiles.iloc[test_indices], activities.iloc[test_indices])
 
+"""
 
 def smiles_to_fp(smiles, fp_size=2048):
     mol = Chem.MolFromSmiles(smiles)
@@ -82,12 +87,13 @@ class MoleculeDataset(Dataset):
         activity = torch.tensor([self.activities[idx]], dtype=torch.float32)
         return fp, activity
 
-CHEMBL_EGFR_PATH ="data/raw/EGFR-activities-chembl37.csv.gz"
 
 WRITE_PATH = "data/processed"
 train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
 validation_file_path = Path(WRITE_PATH) / "EGFR-validation.csv"
 test_file_path = Path(WRITE_PATH) / "EGFR-test.csv"
+
+"""
 
 # Import dataset
 console = Console()
@@ -136,6 +142,51 @@ print(f"- {validation_file_path} ({val_smiles.shape[0]} rows, {val_pct:.1f}%)")
 print(f"- {test_file_path} ({test_smiles.shape[0]} rows, {test_pct:.1f}%)")
 print(f"Total: {train_smiles.shape[0] + val_smiles.shape[0] + test_smiles.shape[0]}")
 print()
+"""
+
+# Import dataset
+console = Console()
+
+
+# Initialize PyTorch Device 
+console.print(f"\nInitialize Pytorch device", style="gold1")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if torch.cuda.is_available():
+        console.print(f"CUDA enabled, GPU {torch.cuda.get_device_name(0)}\n", style="bright_blue", highlight=False)
+else:
+        console.print(f"CUDA not available, using CPU.\n", style="gold1") 
+
+# Read the CSV files using Pandas
+train_df = pd.read_csv(train_file_path)
+val_df = pd.read_csv(validation_file_path)
+test_df = pd.read_csv(test_file_path)
+
+# 2. Instantiate the MoleculeDataset objects
+# We pass the 'Smiles' and 'Standard Value' columns directly to the dataset class
+train_dataset = MoleculeDataset(train_df["Smiles"], train_df["Standard Value"])
+val_dataset = MoleculeDataset(val_df["Smiles"], val_df["Standard Value"])
+test_dataset = MoleculeDataset(test_df["Smiles"], test_df["Standard Value"])
+
+console.print(f"Loaded {len(train_dataset)} training samples.", style="green")
+console.print(f"Loaded {len(val_dataset)} validation samples.", style="green")
+console.print(f"Loaded {len(test_dataset)} test samples.", style="green")
+
+# 3. Create the DataLoaders for PyTorch training
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+
+print("Todo bien. DataLoaders ready for training loop.")
+
+
+
+"""
+train_dataset = SpamDataset(csv_file=train_file_path, max_length=None, tokenizer=tokenizer)
+print("Number of tokens in the longest sequence:", train_dataset.max_length)
+
+val_dataset = SpamDataset(csv_file=validation_file_path, max_length=train_dataset.max_length, tokenizer=tokenizer)
+test_dataset = SpamDataset(csv_file=test_file_path, max_length=train_dataset.max_length, tokenizer=tokenizer)
+"""
 
 """
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
