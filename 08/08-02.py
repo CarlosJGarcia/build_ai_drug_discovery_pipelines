@@ -186,11 +186,10 @@ def evaluate_model(model, test_loader, criterion, device):
     mae = mae_criterion(predictions, actuals)
     
     # Use .item() to extract standard Python floats for printing
-    print(f'Test Loss: {total_loss/len(test_loader):.4f}')
-    print(f'Mean Squared Error: {mse.item():.4f}')
-    print(f'Mean Absolute Error: {mae.item():.4f}')
+    print(f'Test Loss: {total_loss/len(test_loader):,.4f}')
+    print(f'Mean Squared Error: {mse.item():,.4f}')
+    print(f'Mean Absolute Error: {mae.item():,.4f}')
     
-
 
 WRITE_PATH = "data/processed"
 train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
@@ -239,6 +238,7 @@ console.print(f"\nTraining", style="gold1")
 train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs=50)
 
 # Evaluate with test dataset
+console.print(f"\nEvaluation", style="gold1")
 evaluate_model(model, test_loader, criterion, device)
 
 
