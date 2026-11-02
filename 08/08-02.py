@@ -9,16 +9,23 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
-import torch
 import numpy as np
 import pandas as pd
-from rdkit import Chem
-
 from pathlib import Path
-from rdkit import DataStructs
 from rich.console import Console
-from rdkit.Chem import rdFingerprintGenerator
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+
+from rdkit import Chem
+from rdkit import DataStructs
+from rdkit.Chem import rdFingerprintGenerator
+
+
+
 
 
 """
@@ -28,9 +35,9 @@ from sklearn.model_selection import train_test_split  # En lugar de definir la f
 
 
 
-# import torch.nn as nn
-# import torch.optim as optim
-# from torch.optim.lr_scheduler import ReduceLROnPlateau
+
+
+
 
 
 # Umplementation Bemis-Murcko scaffold split using RDKit
@@ -105,6 +112,86 @@ class KinaseBinderNN(nn.Module):
         return x
 
 
+def train_model(
+    model, train_loader, val_loader, criterion, optimizer, 
+    scheduler, device, num_epochs=10
+):
+    model.train()
+    train_losses = []
+    val_losses = []
+    
+    for epoch in range(num_epochs):
+        running_loss = 0.0
+        for inputs, targets in train_loader:
+            inputs, targets = inputs.to(device), targets.to(device)
+            
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
+            loss.backward()
+            optimizer.step()
+            
+            running_loss += loss.item()
+        
+        train_loss = running_loss / len(train_loader)
+        train_losses.append(train_loss)
+        
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for inputs, targets in val_loader:
+                inputs, targets = inputs.to(device), targets.to(device)
+                outputs = model(inputs)
+                loss = criterion(outputs, targets)
+                val_loss += loss.item()
+        
+        val_loss /= len(val_loader)
+        val_losses.append(val_loss)
+        
+        print(f'Epoch {epoch+1}/{num_epochs}', 
+              f'Train Loss: {train_loss:.4f}',
+              f'Val Loss: {val_loss:.4f}')
+        
+        scheduler.step(val_loss)
+        model.train()
+
+
+def evaluate_model(model, test_loader, criterion, device):
+    model.eval()
+    total_loss = 0.0
+    predictions = []
+    actuals = []
+    mse_criterion = nn.MSELoss()
+    mae_criterion = nn.L1Loss() 
+
+    with torch.no_grad():
+        for inputs, targets in test_loader:
+            inputs, targets = inputs.to(device), targets.to(device)
+            outputs = model(inputs)
+            
+            # Calculate batch loss
+            loss = criterion(outputs, targets)
+            total_loss += loss.item()
+            
+            # Keep as tensors, move to CPU to prevent GPU memory bloat, and append
+            predictions.append(outputs.cpu())
+            actuals.append(targets.cpu())
+    
+    # Combine lists of tensors into single continuous tensors and flatten
+    predictions = torch.cat(predictions).view(-1)
+    actuals = torch.cat(actuals).view(-1)
+    
+    # Calculate overall metrics
+    mse = mse_criterion(predictions, actuals)
+    mae = mae_criterion(predictions, actuals)
+    
+    # Use .item() to extract standard Python floats for printing
+    print(f'Test Loss: {total_loss/len(test_loader):.4f}')
+    print(f'Mean Squared Error: {mse.item():.4f}')
+    print(f'Mean Absolute Error: {mae.item():.4f}')
+    
+
+
 WRITE_PATH = "data/processed"
 train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
 validation_file_path = Path(WRITE_PATH) / "EGFR-validation.csv"
@@ -136,14 +223,23 @@ console.print(f"Loaded {len(train_dataset)} training samples.", style="green")
 console.print(f"Loaded {len(val_dataset)} validation samples.", style="green")
 console.print(f"Loaded {len(test_dataset)} test samples.", style="green")
 
-# 3. Create the DataLoaders for PyTorch training
+# Create the DataLoaders for PyTorch training
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-
 # Instance the KinaseBinder Neural Network class
 model = KinaseBinderNN().to(device)
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
+
+# Training
+console.print(f"\nTraining", style="gold1")
+train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs=50)
+
+# Evaluate with test dataset
+evaluate_model(model, test_loader, criterion, device)
 
 
 print("\nTodo bien.")
@@ -151,11 +247,9 @@ print("\nTodo bien.")
 """
 
  
-criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
+
  
-train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs=50)
+
 evaluate_model(model, test_loader, criterion, device)
 
 torch.save(model.state_dict(), 'artifacts/ch08/kinase_binder_model.pth')
