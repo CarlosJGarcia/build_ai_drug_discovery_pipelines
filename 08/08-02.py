@@ -191,10 +191,11 @@ def evaluate_model(model, test_loader, criterion, device):
     print(f'Mean Absolute Error: {mae.item():,.4f}')
     
 
-WRITE_PATH = "data/processed"
-train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
-validation_file_path = Path(WRITE_PATH) / "EGFR-validation.csv"
-test_file_path = Path(WRITE_PATH) / "EGFR-test.csv"
+DATA_PATH = "data/processed"
+train_file_path = Path(DATA_PATH) / "EGFR-train.csv"
+validation_file_path = Path(DATA_PATH) / "EGFR-validation.csv"
+test_file_path = Path(DATA_PATH) / "EGFR-test.csv"
+MODEL_PATH = "models/kinase_binder_model.pth"
 
 
 # Initialize PyTorch Device 
@@ -241,17 +242,5 @@ train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, de
 console.print(f"\nEvaluation", style="gold1")
 evaluate_model(model, test_loader, criterion, device)
 
-
-print("\nTodo bien.")
-
-"""
-
- 
-
- 
-
-evaluate_model(model, test_loader, criterion, device)
-
-torch.save(model.state_dict(), 'artifacts/ch08/kinase_binder_model.pth')
-print("Model saved successfully.")
-"""
+torch.save(model.state_dict(), MODEL_PATH)
+console.print("\nModel saved successfully.", style="gold1")

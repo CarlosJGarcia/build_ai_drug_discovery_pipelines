@@ -4,7 +4,7 @@
 |---------|---------|---------|
 | 08-00.py | Intro |PyTorch initialization and basic tensor operations |
 | 08-01.py | Step 01 | Data processing: Convert SMILES strings into tensors - numerical representations (e.g., Morgan fingerprints) that can be ingested by a neural network  |
-| 08-02.py | Step 01 | Scikit-learn |
+| 08-02.py | Step 01 | Define the neural network train, evaluate and save it |
 ---
 ### Notes
 - EGFR (Epidermal Growth Factor Receptor)- highly specialized molecules (kinase inhibitors) targeted for cancer research
