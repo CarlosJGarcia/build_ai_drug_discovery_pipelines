@@ -24,51 +24,6 @@ from rdkit import Chem
 from rdkit import DataStructs
 from rdkit.Chem import rdFingerprintGenerator
 
-
-
-
-
-"""
-from collections import defaultdict
-from rdkit.Chem.Scaffolds import MurckoScaffold
-from sklearn.model_selection import train_test_split  # En lugar de definir la función, usamos esta que gestiona mejor los edge cases
-
-
-
-
-
-
-
-
-# Umplementation Bemis-Murcko scaffold split using RDKit
-# Split 80/20 train/test
-# Posteriormente del 80, reservamos 10% para validación
-def scaffold_split(smiles_series, activities_series, train_fraction=0.8):
-    scaffolds = defaultdict(list)
-    smiles = smiles_series.reset_index(drop=True)
-    activities = activities_series.reset_index(drop=True)
-    
-    for i, smi in enumerate(smiles):
-        mol = Chem.MolFromSmiles(str(smi))
-        if mol:
-            scaffold = MurckoScaffold.MurckoScaffoldSmiles(mol=mol)
-            scaffolds[scaffold].append(i)
-            
-    scaffold_sets = sorted(scaffolds.values(), key=len, reverse=True)
-    train_indices, test_indices = [], []
-    train_cutoff = int(len(smiles) * train_fraction)
-    
-    for scaffold_group in scaffold_sets:
-        if len(train_indices) + len(scaffold_group) <= train_cutoff:
-            train_indices.extend(scaffold_group)
-        else:
-            test_indices.extend(scaffold_group)
-            
-    return (smiles.iloc[train_indices], activities.iloc[train_indices], 
-            smiles.iloc[test_indices], activities.iloc[test_indices])
-
-"""
-
 def smiles_to_fp(smiles, fp_size=2048):
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
@@ -243,4 +198,4 @@ console.print(f"\nEvaluation", style="gold1")
 evaluate_model(model, test_loader, criterion, device)
 
 torch.save(model.state_dict(), MODEL_PATH)
-console.print("\nModel saved successfully.", style="gold1")
+console.print("\nModel saved successfully.\n", style="gold1")

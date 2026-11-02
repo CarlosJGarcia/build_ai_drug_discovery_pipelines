@@ -10,11 +10,11 @@
 | 6. Case Study: Small Molecule Binding to an RNA Target| | | Scikit-learn |
 | 7. Unsupervised Learning: Repurposing Drugs, Curating Compounds & Screening Fragments | | | Scikit-learn |
 | 8. Introduction to Deep Learning | Completed | 02/Nov/2026 | Pytorch |
-| 9. Structure-based Drug Design with Active Learning | In Progress | | |
+| 9. Structure-based Drug Design with Active Learning |  | | Pytorch. Weights and Biases. MDTraj, AutoDock Vina and Meeko|
 | 10. Generative Models for De Novo Design  | | | |
-| 11. Graph  | | | |
-| 12. xx  | | | |
-| 13. xx  | | | |
+| 11. Graph Neural Networks for predicting drug-target affinity  | In Progress | | |
+| 12. Transformers for Protein Structure Prediction  | | | |
+| 13. Multimodal AI Systems for End-to-End drug discovery  | | | |
 
 ---
 ### Notes
