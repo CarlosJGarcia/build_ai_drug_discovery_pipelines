@@ -19,7 +19,10 @@ print(f"CUDA enabled: {torch.cuda.is_available()}")
 
 # Configuración GPU RTX
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
+print(f"Device: {device}")
+if torch.cuda.is_available():
+    print(f"GPU: {torch.cuda.get_device_name(0)}")
+
 
 console.print("\nPytorch two-dimensional tensor (matrix):", style="gold1", highlight=False)
 tensor_2d = torch.tensor([[1, 2], [3, 4]])
