@@ -93,62 +93,9 @@ train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
 validation_file_path = Path(WRITE_PATH) / "EGFR-validation.csv"
 test_file_path = Path(WRITE_PATH) / "EGFR-test.csv"
 
-"""
-
-# Import dataset
-console = Console()
-console.print(f"\nReading with Pandas ./{CHEMBL_EGFR_PATH}\n", style="gold1", highlight=False)
-egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Specify ; instead of , as field separator and load file in memory to prevent a warning when fields have None as value 
-
-egfr_kinodata["Standard Value"] = pd.to_numeric(egfr_kinodata["Standard Value"], errors="coerce")
-clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])    # Clean the data, remove the rows with NaN, etc.
-console.print("Dataframe:", style="gold1", highlight=False)
-print(clean_data[["Smiles", "Standard Value"]])
-print()
-
-# Split train/validation/test
-console.print("Split\n", style="gold1", highlight=False)
-smiles = clean_data["Smiles"]
-activities = clean_data["Standard Value"]
-train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
-train_smiles, val_smiles, train_activities, val_activities = train_test_split(train_smiles, train_activities, test_size=0.1, random_state=42)
-
-# Reset indices for PyTorch compatibility
-train_smiles = train_smiles.reset_index(drop=True)
-train_activities = train_activities.reset_index(drop=True)
-val_smiles = val_smiles.reset_index(drop=True)
-val_activities = val_activities.reset_index(drop=True)
-test_smiles = test_smiles.reset_index(drop=True)
-test_activities = test_activities.reset_index(drop=True)
-
-# Create MoleculeDataset objects for training, validation, and test data
-# Each dataset has SMILES strings and their corresponding pIC50 activities
-train_dataset = MoleculeDataset(train_smiles, train_activities)
-test_dataset = MoleculeDataset(test_smiles, test_activities)
-val_dataset = MoleculeDataset(val_smiles, val_activities)
-
-# Combine Series into DataFrames and save without the index
-pd.DataFrame({"Smiles": train_smiles, "Standard Value": train_activities}).to_csv(train_file_path, index=False)
-pd.DataFrame({"Smiles": val_smiles, "Standard Value": val_activities}).to_csv(validation_file_path, index=False)
-pd.DataFrame({"Smiles": test_smiles, "Standard Value": test_activities}).to_csv(test_file_path, index=False)
-
-console.print(f"Files saved successfully to {WRITE_PATH}:", style="gold1", highlight=False)
-total_rows = clean_data.shape[0]
-train_pct = (train_smiles.shape[0] / total_rows) * 100
-val_pct = (val_smiles.shape[0] / total_rows) * 100
-test_pct = (test_smiles.shape[0] / total_rows) * 100
-print(f"- {train_file_path} ({train_smiles.shape[0]} rows, {train_pct:.1f}%)")
-print(f"- {validation_file_path} ({val_smiles.shape[0]} rows, {val_pct:.1f}%)")
-print(f"- {test_file_path} ({test_smiles.shape[0]} rows, {test_pct:.1f}%)")
-print(f"Total: {train_smiles.shape[0] + val_smiles.shape[0] + test_smiles.shape[0]}")
-print()
-"""
-
-# Import dataset
-console = Console()
-
 
 # Initialize PyTorch Device 
+console = Console()
 console.print(f"\nInitialize Pytorch device", style="gold1")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if torch.cuda.is_available():
@@ -157,11 +104,12 @@ else:
         console.print(f"CUDA not available, using CPU.\n", style="gold1") 
 
 # Read the CSV files using Pandas
+console.print(f"Reading datasets with Pandas", style="gold1")
 train_df = pd.read_csv(train_file_path)
 val_df = pd.read_csv(validation_file_path)
 test_df = pd.read_csv(test_file_path)
 
-# 2. Instantiate the MoleculeDataset objects
+# Instantiate the MoleculeDataset objects
 # We pass the 'Smiles' and 'Standard Value' columns directly to the dataset class
 train_dataset = MoleculeDataset(train_df["Smiles"], train_df["Standard Value"])
 val_dataset = MoleculeDataset(val_df["Smiles"], val_df["Standard Value"])
@@ -176,7 +124,7 @@ train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-print("Todo bien. DataLoaders ready for training loop.")
+print("\nTodo bien. DataLoaders ready for training loop.")
 
 
 
