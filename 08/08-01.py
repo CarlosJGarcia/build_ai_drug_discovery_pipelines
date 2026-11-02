@@ -9,7 +9,6 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
-
 import numpy as np
 import pandas as pd
 from rdkit import Chem
@@ -21,12 +20,6 @@ from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split  # En lugar de definir la función, usamos esta que gestiona mejor los edge cases
-
-
-# import torch
-# import torch.nn as nn
-# import torch.optim as optim
-# from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 # Umplementation Bemis-Murcko scaffold split using RDKit
@@ -82,6 +75,7 @@ class MoleculeDataset(Dataset):
         activity = torch.tensor([self.activities[idx]], dtype=torch.float32)
         return fp, activity
 
+
 CHEMBL_EGFR_PATH ="data/raw/EGFR-activities-chembl37.csv.gz"
 
 WRITE_PATH = "data/processed"
@@ -136,22 +130,3 @@ print(f"- {validation_file_path} ({val_smiles.shape[0]} rows, {val_pct:.1f}%)")
 print(f"- {test_file_path} ({test_smiles.shape[0]} rows, {test_pct:.1f}%)")
 print(f"Total: {train_smiles.shape[0] + val_smiles.shape[0] + test_smiles.shape[0]}")
 print()
-
-"""
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
- 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = KinaseBinderNN().to(device)
- 
-criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
- 
-train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs=50)
-evaluate_model(model, test_loader, criterion, device)
-
-torch.save(model.state_dict(), 'artifacts/ch08/kinase_binder_model.pth')
-print("Model saved successfully.")
-"""
