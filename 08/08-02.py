@@ -9,6 +9,7 @@
 # 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
 # 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
+import wandb
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -23,6 +24,15 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from rdkit import Chem
 from rdkit import DataStructs
 from rdkit.Chem import rdFingerprintGenerator
+
+DATA_PATH = "data/processed"
+train_file_path = Path(DATA_PATH) / "EGFR-train.csv"
+validation_file_path = Path(DATA_PATH) / "EGFR-validation.csv"
+test_file_path = Path(DATA_PATH) / "EGFR-test.csv"
+MODEL_PATH = "models/kinase_binder_model.pth"
+
+# Training hyperparameters
+NUM_EPOCHS = 50      
 
 def smiles_to_fp(smiles, fp_size=2048):
     mol = Chem.MolFromSmiles(smiles)
@@ -103,9 +113,16 @@ def train_model(
         val_loss /= len(val_loader)
         val_losses.append(val_loss)
         
-        print(f'Epoch {epoch+1}/{num_epochs}', 
+        print(f'Epoch {epoch + 1}/{num_epochs}', 
               f'Train Loss: {train_loss:.4f}',
               f'Val Loss: {val_loss:.4f}')
+
+        # Weights & Biases
+        wandb.log({
+            "train_loss": train_loss,
+            "val_loss": val_loss,
+            "epoch": epoch + 1
+            })
         
         scheduler.step(val_loss)
         model.train()
@@ -146,15 +163,22 @@ def evaluate_model(model, test_loader, criterion, device):
     print(f'Mean Absolute Error: {mae.item():,.4f}')
     
 
-DATA_PATH = "data/processed"
-train_file_path = Path(DATA_PATH) / "EGFR-train.csv"
-validation_file_path = Path(DATA_PATH) / "EGFR-validation.csv"
-test_file_path = Path(DATA_PATH) / "EGFR-test.csv"
-MODEL_PATH = "models/kinase_binder_model.pth"
 
+# =========
+# Execution
+# =========
+console = Console()
+
+# Weights & Biases
+# < -------------------------------------------------------------------------- Revisar esta configuración
+run = wandb.init(entity="cgarciams-carlos", project="Drug Discovery",
+config={
+    "dataset": "EGFR",
+    "epochs": NUM_EPOCHS,
+    })
+console.print(f"\nWeights & Biases initialized", style="gold1")
 
 # Initialize PyTorch Device 
-console = Console()
 console.print(f"\nInitialize Pytorch device", style="gold1")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if torch.cuda.is_available():
@@ -191,7 +215,7 @@ scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
 
 # Training
 console.print(f"\nTraining", style="gold1")
-train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs=50)
+train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs=NUM_EPOCHS)
 
 # Evaluate with test dataset
 console.print(f"\nEvaluation", style="gold1")
