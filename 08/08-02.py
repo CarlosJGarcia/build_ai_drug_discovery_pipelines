@@ -214,11 +214,11 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
 
 # Training
-console.print(f"\nTraining", style="gold1")
+console.print(f"\nTraining (using trainind and validation data)", style="gold1")
 train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, device, num_epochs=NUM_EPOCHS)
 
 # Evaluate with test dataset
-console.print(f"\nEvaluation", style="gold1")
+console.print(f"\nEvaluation (using test data)", style="gold1")
 evaluate_model(model, test_loader, criterion, device)
 
 torch.save(model.state_dict(), MODEL_PATH)

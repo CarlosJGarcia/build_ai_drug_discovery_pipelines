@@ -90,12 +90,14 @@ egfr_kinodata = pd.read_csv(CHEMBL_EGFR_PATH, sep=';', low_memory=False)  # Spec
 
 egfr_kinodata["Standard Value"] = pd.to_numeric(egfr_kinodata["Standard Value"], errors="coerce")
 clean_data = egfr_kinodata.dropna(subset=["Smiles", "Standard Value"])    # Clean the data, remove the rows with NaN, etc.
+clean_data = clean_data[clean_data["Standard Value"] > 0]                 # Remove zero/negative values to prevent math errors
+clean_data["Standard Value"] = 9 - np.log10(clean_data["Standard Value"]) # Normalize into pIC50 (from millions to a 3.0 - 10.0 interval)
 console.print("Dataframe:", style="gold1", highlight=False)
 print(clean_data[["Smiles", "Standard Value"]])
 print()
 
 # Split train/validation/test
-console.print("Split\n", style="gold1", highlight=False)
+console.print("Normalization and split\n", style="gold1", highlight=False)
 smiles = clean_data["Smiles"]
 activities = clean_data["Standard Value"]
 train_smiles, train_activities, test_smiles, test_activities = scaffold_split(smiles, activities)
