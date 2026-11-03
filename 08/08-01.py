@@ -3,11 +3,6 @@
 # ML is 80% about clearing data and the other 20% is complaning about clearing data
 
 # 1. Data processing: Convert SMILES strings into tensors - numerical representations (e.g., Morgan fingerprints) that can be ingested by a neural network 
-# 2. Define the model: Structure of the neural network model, referred to as its architecture. Loss function, optimizer and learning rate scheduler. 
-# 3. Training the model: With data and model, we fit the model to the data. The model to learn patterns in the training data to make predictions on new inputs
-# 4. Evaluating the model: We compare the model’s predictions on test data against the actual values.
-# 5. Improve the model: Experiment with changes such as modifications to the model architecture, hyperparameter sweeps, etc.
-# 6. Saving the model: Once we’ve settled on a final model, so we can reuse it
 
 import numpy as np
 import pandas as pd
@@ -20,6 +15,12 @@ from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split  # En lugar de definir la función, usamos esta que gestiona mejor los edge cases
+
+CHEMBL_EGFR_PATH ="data/raw/EGFR-activities-chembl37.csv.gz"
+WRITE_PATH = "data/processed"
+train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
+validation_file_path = Path(WRITE_PATH) / "EGFR-validation.csv"
+test_file_path = Path(WRITE_PATH) / "EGFR-test.csv"
 
 
 # Umplementation Bemis-Murcko scaffold split using RDKit
@@ -76,12 +77,9 @@ class MoleculeDataset(Dataset):
         return fp, activity
 
 
-CHEMBL_EGFR_PATH ="data/raw/EGFR-activities-chembl37.csv.gz"
-
-WRITE_PATH = "data/processed"
-train_file_path = Path(WRITE_PATH) / "EGFR-train.csv"
-validation_file_path = Path(WRITE_PATH) / "EGFR-validation.csv"
-test_file_path = Path(WRITE_PATH) / "EGFR-test.csv"
+# =========
+# Execution
+# =========
 
 # Import dataset
 console = Console()

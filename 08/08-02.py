@@ -2,7 +2,7 @@
 # EGFR (Epidermal Growth Factor Receptor) activity dataset - highly specialized molecules (kinase inhibitors targeted for cancer research)
 # ML is 80% about clearing data and the other 20% is complaning about clearing data
 
-# 1. Data processing: Convert SMILES strings into tensors - numerical representations (e.g., Morgan fingerprints) that can be ingested by a neural network 
+# 1. Load data
 # 2. Define the model: Structure of the neural network model, referred to as its architecture. Loss function, optimizer and learning rate scheduler. 
 # 3. Training the model: With data and model, we fit the model to the data. The model to learn patterns in the training data to make predictions on new inputs
 # 4. Evaluating the model: We compare the model’s predictions on test data against the actual values.
@@ -160,8 +160,7 @@ def evaluate_model(model, test_loader, criterion, device):
     # Use .item() to extract standard Python floats for printing
     print(f'Test Loss: {total_loss/len(test_loader):,.4f}')
     print(f'Mean Squared Error: {mse.item():,.4f}')
-    print(f'Mean Absolute Error: {mae.item():,.4f}')
-    
+    print(f'Mean Absolute Error: {mae.item():,.4f}')    
 
 
 # =========
@@ -170,7 +169,6 @@ def evaluate_model(model, test_loader, criterion, device):
 console = Console()
 
 # Weights & Biases
-# < -------------------------------------------------------------------------- Revisar esta configuración
 run = wandb.init(entity="cgarciams-carlos", project="Drug Discovery",
 config={
     "dataset": "EGFR",
