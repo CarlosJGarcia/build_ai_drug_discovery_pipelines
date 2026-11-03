@@ -1,6 +1,8 @@
 # Large data files
 02/data/Specs.sdf.gz
 
-
 # Models
 08/models/
+
+# Ignore Weights & Biases run logs and caches
+wandb/
