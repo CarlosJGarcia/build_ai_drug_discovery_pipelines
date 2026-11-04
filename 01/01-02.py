@@ -81,3 +81,7 @@ probs = lr_model_cillin.predict_proba(grid_df)[:, 1].reshape(xx.shape)
 print(f"Decision grid evaluated over shape {probs.shape}.")
 print(f"Min probability: {probs.min():.4f}, Max probability: {probs.max():.4f}")
 print("Pipeline run completed successfully.")
+
+# Two adaptations are possible for this code
+# 1. Move from Scikt-learn to Pytorch
+# 2. Move from play Pytorch to Pytorch-CUDA, initializing a device, moving the objects to GPU-VRAM and doing the calculations there

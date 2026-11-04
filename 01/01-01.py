@@ -1,27 +1,26 @@
 from rdkit import Chem
-from rdkit.Chem import (AllChem, Descriptors, Draw, PandasTools)
+from rich.console import Console
+from rdkit.Chem import AllChem, Descriptors, Draw, PandasTools, rdMolDescriptors
  
 # SMILES string: A molecule written as text
 aspirine_smiles_string = "CC(=O)Oc1ccccc1C(=O)O"
 caffeine_smiles_string = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
 
-
+console = Console()
+console.print("\nCaffeine", style="gold1")
 mol = Chem.MolFromSmiles(caffeine_smiles_string)
- 
-print("Number of atoms:", mol.GetNumAtoms())
-# Output -> Number of atoms: 14
 
-print("Number of bonds:", mol.GetNumBonds())
-# Output -> Number of bonds: 15
- 
 # Print the SMILES string
-print(Chem.MolToSmiles(mol)) 
+print("SMILES string:", Chem.MolToSmiles(mol)) 
+print(f"Molecular formula: {rdMolDescriptors.CalcMolFormula(mol)}\n")
 
-# Print the molecular formula
-#print(mol.GetFormula())
+# Show properties
+print("Number of atoms:", mol.GetNumAtoms())
+print("Number of bonds:", mol.GetNumBonds())
+print(f"Molecular weight: {Descriptors.MolWt(mol)}\n")
+ 
 
-# Print the weight
-print(f"Molecular weight: {Descriptors.MolWt(mol)}")
+
  
 """
 img = Draw.MolsToGridImage(mols=[mol], molsPerRow=1, useSVG=True)
