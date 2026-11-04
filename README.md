@@ -16,7 +16,7 @@ To check that CUDA, PyTorch and RDKit are working, run 01/version.py
 # Notes
 Build AI Drug Discovery Pipelines: Use AI models to discover new pharmaceutical drugs.
 
-Chemical informatics, also known as chemoinformatics or cheminformatics
+Chemical informatics, also known as chemoinformatics or cheminformatics.  
 Cheminformatics sits at the intersection of chemistry, computer science, and data science. 
 It focuses on storing, analyzing, searching, and manipulating chemical structure data using computers.
 In the context of the Build AI Drug Discovery Pipelines book, cheminformatics represents the first step: data engineering step. 
