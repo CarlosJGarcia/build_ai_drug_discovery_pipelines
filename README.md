@@ -17,11 +17,17 @@ To check that CUDA, PyTorch and RDKit are working, run 01/version.py
 Build AI Drug Discovery Pipelines: Use AI models to discover new pharmaceutical drugs.
 
 Chemical informatics, also known as chemoinformatics or cheminformatics.  
-Cheminformatics sits at the intersection of chemistry, computer science, and data science. 
-It focuses on storing, analyzing, searching, and manipulating chemical structure data using computers.
-In the context of the Build AI Drug Discovery Pipelines book, cheminformatics represents the first step: data engineering step. 
-It is the practice of taking raw chemical representations, like the SMILES strings and SDF datasets and computing quantitative properties or molecular fingerprints.
+Cheminformatics sits at the intersection of chemistry, computer science and data science.  
+It focuses on storing, analyzing, searching, and manipulating chemical structure data using computers.  
+In the context of the Build AI Drug Discovery Pipelines book, cheminformatics represents the first step: data engineering.   
+It is the practice of taking raw chemical representations, like SMILES strings or SDF datasets and computing quantitative properties or molecular fingerprints.  
 This mathematical translation is required, because AI and ML models can't interpret raw chemical drawings. They require the structured numerical arrays that cheminformatics libraries like RDKit can generate. They can use these to discover new pharmaceutical drugs.
+
+
+- SDF: Structure Data File. Text-based file format developed for cheminformatics.
+- EGFR: Epidermal Growth Factor Receptor.
+- RDKit:  Rational Discovery Kit. Open-source cheminformatics and ML library for analisys and calculation of the properties of chemical structures.
+- SMILES: Simplified Molecular-Input Line-Entry System. A molecule written as text. caffeine_smiles_string = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C".
 
 
 - Life Sciences: Scientific discipline dealing with human, animal, or plant life. Includes biotechnology, genomics, medical devices, agriculture and botany
