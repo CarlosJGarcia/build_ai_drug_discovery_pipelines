@@ -2,7 +2,7 @@
 
 | Chapter | Completion Status | Date Completed | Notes |
 |---------|------------------|----------------|-------|
-| 1. The Drug Discovery Process | Completed | 30/Oct/2026 | Introduction |
+| 1. The Drug Discovery Process | Completed | 30/Oct/2026 | Introduction RDKit |
 | 2. Ligand-based Screening: Filtering & Similarity Searching| In Progress | | |
 | 3. Ligand-based Screening Machine Learning | | | Scikit-learn |
 | 4. Solubility Deep Dive with Linear Models | | | Scikit-learn |

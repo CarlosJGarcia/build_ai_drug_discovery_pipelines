@@ -43,4 +43,9 @@ Non-NLP task: A task that doesn't require Natural Language Processing and can be
 
 The number of candidate drug molecules is $10^{43}$ times the number of grains of wheat produced by the US in 22,000 years.
 
+The three primary biological macromolecules:
+- Carbohidrates: Energy. Carbon, hidrogen and oxigen. Glucose, cellulose, lactose.
+- Lipids: Long-term energy. Carbon, hidrogen and very little oxigen. Fats, oils, cholesterol.
+- Proteins: Tissues, inmune defense. Carbon, hidrogen, oxigen and nitrogen. Hemoglobin, keratin, insulin, muscle fibers.
+
 
