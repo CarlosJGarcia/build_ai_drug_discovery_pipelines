@@ -41,3 +41,6 @@ Every pharmaceutical company is a life sciences company, but not the other way a
 Non-NLP task: A task that doesn't require Natural Language Processing and can be solved by traditional ML and DL neural networks.
 
 
+The number of candidate drug molecules is $10^{43}$ times the number of grains of wheat produced by the US in 22,000 years.
+
+
