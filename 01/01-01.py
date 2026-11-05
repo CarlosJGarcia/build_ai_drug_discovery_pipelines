@@ -10,6 +10,16 @@ salt_smiles_string = "[Na+].[Cl-]"                       # Ionic bond. Cl takes 
 aspirine_smiles_string = "CC(=O)Oc1ccccc1C(=O)O"
 caffeine_smiles_string = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
 
+# Dictionary
+molecules_list = [
+    "Caffeine", caffeine_smiles_string,
+    "Oxygen", oxygen_smiles_string,
+    "Hydrogen", hydrogen_smiles_string,
+    "Water", water_smiles_string,
+    "Salt", salt_smiles_string,
+    "Aspirine", aspirine_smiles_string
+]
+
 def print_molecule(molecule):
   # Print the SMILES string and molecular formula
   print("SMILES string:", Chem.MolToSmiles(molecule)) 
