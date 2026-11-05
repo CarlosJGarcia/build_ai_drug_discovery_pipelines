@@ -1,9 +1,11 @@
 # Environment setup
-`conda create --name drug_discovery_cuda --clone llm_scratch_cuda` 
-`conda activate drug_discovery_cuda` 
-`pip install rdkit`  
-`pip install scikit-learn seaborn`  
-`pip install torch-geometric`
+```
+conda create --name drug_discovery_cuda --clone llm_scratch_cuda
+conda activate drug_discovery_cuda
+pip install rdkit
+pip install scikit-learn seaborn
+pip install torch-geometric
+```
 
 Important:
 Don't run `$ conda update --all -c conda-forge -y` because this will install a PyTorch version without CUDA 
