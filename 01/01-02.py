@@ -1,87 +1,75 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import seaborn as sns
-from rdkit.Chem import PandasTools
-from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
-from sklearn.decomposition import PCA
-from sklearn.linear_model import LogisticRegression
+from rdkit import Chem
+from rich.console import Console
+from rdkit.Chem import AllChem, Descriptors, Draw, PandasTools, rdMolDescriptors
+ 
+# SMILES string: A molecule written as text
+hydrogen_smiles_string = "[H][H]"                          # Hidrogen molecule (H2). Two H atoms with single covalent bond
+oxygen_smiles_string = "O=O"                               # Oxigen molecule (02). Two O atoms with double covalent bond
+carbon_dioxide_smiles_string = "O=C=O"                     # C02
+nitrogen_smiles_string = "N#N"                             # Nitrogen (N2). Two N atoms with a triple bond, represented by the hash symbol.
+water_smiles_string = "O"                                  # SMILES notation assumes the standard bonds, which for one atom of O is two atoms of H
+salt_smiles_string = "[Na+].[Cl-]"                         # Cl and Na with an ionic bond. Cl takes one electron from Na
+aspirine_smiles_string = "CC(=O)Oc1ccccc1C(=O)O"
+caffeine_smiles_string = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+benzene_smiles_string = "c1ccccc1"                                        # C6H6 Each carbon atom has an H and is linked to two other carbons with one single and one double bond. The molecule is planar because the double bonds are rigid.
+cyclohexane_smiles_string = "C1CCCCC1"                                    # C6H12 Each carbon atom has two Hidrogens and is likend to two other carbons with single bonds. The molecule folds over itself as all the bonds are single and they allow that.
 
-# 1. Load Data
-print("Loading FDA approved drugs dataset...")
-fda_approved_df = pd.read_csv('data/fda_approved_drugs.csv', sep=',')
-print(f"Total rows loaded: {len(fda_approved_df)}")
+# Samples of the three main molecule types in biochemistry
+lactose_smiles_string = "C(C1C(C(C(C(O1)OC2C(OC(C(C2O)O)O)CO)O)O)O)O"     # Carbon hidrate
+colesterol_smiles = "CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C"     # Lypid. Barely any oxygen, so it does not dissolve in water.
+oxytocin_smiles = "CCC(C)C1C(=O)NC(C(=O)NC(C(=O)NC(CSSCC(C(=O)NC(C(=O)N2CCCC2C(=O)NC(C(=O)NCC(=O)N)CC(C)C)CC(=O)N)N)C(=O)NC(C(=O)N1)CCC(=O)N)CC(=O)N)CC3=CC=C(C=C3)O" # Small protein. Proteins are much, much bigger than carbon hidrates or lipids
 
-# 2. RDKit Molecule Parsing & Filtering
-PandasTools.AddMoleculeColumnToFrame(
-    fda_approved_df, smilesCol='Smiles', molCol='ROMol'
-)
-fda_approved_df = fda_approved_df[~fda_approved_df['ROMol'].isnull()]
-print(f"Valid molecules parsed: {len(fda_approved_df)}")
+# Isomers: Molecules that have the same molecular formula but differ in their structural arrangement or spatial orientation. The @ denotes the spatial orientation
+# In vivo chiral inversion. Even if a patient is given 100% pure R-thalidomide, the metabolic system convert R to the dangerous S and back in the bloodstream
+r_thalidomide_smiles = "C1CC(=O)NC(=O)[C@@H]1N2C(=O)C3=CC=CC=C3C2=O"      # R-thalidomide (therapeutic, women morning sickness)
+s_thalidomide_smiles = "C1CC(=O)NC(=O)[C@H]1N2C(=O)C3=CC=CC=C3C2=O"       #S-thalidomide (birth defects)
 
-# 3. Compute ECFP6 Fingerprints
-print("Generating ECFP6 Morgan fingerprints (radius=3, size=1024)...")
-morgan_gen = GetMorganGenerator(radius=3, fpSize=1024)
-fda_approved_df['ECFP6'] = fda_approved_df['ROMol'].apply(
-    lambda mol: morgan_gen.GetFingerprint(mol)
-)
 
-# 4. Dimensionality Reduction with PCA
-print("Fitting PCA (n_components=4)...")
-X = np.array([x for x in fda_approved_df['ECFP6']])
-pca = PCA(n_components=4, random_state=42)
-pca_drugs = pca.fit_transform(X)
-
-fda_approved_df['PC1'] = pca_drugs.T[0]
-fda_approved_df['PC2'] = pca_drugs.T[1]
-fda_approved_df['PC3'] = pca_drugs.T[2]
-fda_approved_df['PC4'] = pca_drugs.T[3]
-
-print(f"PCA Explained Variance Ratio: {pca.explained_variance_ratio_}")
-
-# 5. Visualizing Pairs (Display/Save)
-print("Generating Seaborn pairplot...")
-pairplot_fig = sns.pairplot(
-    fda_approved_df,
-    hue='USAN Stem',
-    vars=['PC1', 'PC2', 'PC3', 'PC4'],
-    palette='viridis'
-)
-pairplot_fig.savefig("pca_pairplot.png")
-print("Saved pairplot to 'pca_pairplot.png'")
-
-# 6. Binary Classification Targets
-fda_approved_df['cillin'] = (
-    fda_approved_df['USAN Stem'] == '-cillin'
-).astype(int)
-fda_approved_df['olol'] = (
-    fda_approved_df['USAN Stem'] == '-olol'
-).astype(int)
-
-cillin_count = fda_approved_df['cillin'].sum()
-olol_count = fda_approved_df['olol'].sum()
-print(f"Target distribution -> '-cillin': {cillin_count}, '-olol': {olol_count}")
-
-# 7. Logistic Regression on PC1 and PC3
-print("Training Logistic Regression on [PC1, PC3] for '-cillin'...")
-feature_cols = ['PC1', 'PC3']
-lr_model_cillin = LogisticRegression()
-lr_model_cillin.fit(fda_approved_df[feature_cols], fda_approved_df.cillin)
-
-# 8. Decision Boundary Grid
-xx, yy = np.mgrid[
-    fda_approved_df.PC1.min():fda_approved_df.PC1.max():0.01,
-    fda_approved_df.PC3.min():fda_approved_df.PC3.max():0.01
+# Dictionary
+molecules_list = [
+    "Caffeine", caffeine_smiles_string,
+    "Oxygen", oxygen_smiles_string,
+    "Hydrogen", hydrogen_smiles_string,
+    "Water", water_smiles_string,
+    "Salt", salt_smiles_string,
+    "Aspirine", aspirine_smiles_string
 ]
 
-# Pass a DataFrame with matching column names to silence the scikit-learn warning
-grid_df = pd.DataFrame(np.c_[xx.ravel(), yy.ravel()], columns=feature_cols)
-probs = lr_model_cillin.predict_proba(grid_df)[:, 1].reshape(xx.shape)
+def print_molecule(molecule):
+  # Print the SMILES string and molecular formula
+  print("SMILES string:", Chem.MolToSmiles(molecule)) 
+  print(f"Molecular formula: {rdMolDescriptors.CalcMolFormula(molecule)}\n")
 
-print(f"Decision grid evaluated over shape {probs.shape}.")
-print(f"Min probability: {probs.min():.4f}, Max probability: {probs.max():.4f}")
-print("Pipeline run completed successfully.")
+  # Show properties
+  print("Number of atoms:", molecule.GetNumAtoms())
+  print("Number of bonds:", molecule.GetNumBonds())
+  print(f"Molecular weight: {Descriptors.MolWt(molecule)}\n")
 
-# Two adaptations are possible for this code
-# 1. Move from Scikt-learn to Pytorch
-# 2. Move from play Pytorch to Pytorch-CUDA, initializing a device, moving the objects to GPU-VRAM and doing the calculations there
+
+# *main*
+console = Console()
+console.print("\nCaffeine", style="gold1")
+mol = Chem.MolFromSmiles(caffeine_smiles_string)
+
+# Print the SMILES string
+print("SMILES string:", Chem.MolToSmiles(mol)) 
+print(f"Molecular formula: {rdMolDescriptors.CalcMolFormula(mol)}\n")
+
+# Show properties
+print("Number of atoms:", mol.GetNumAtoms())
+print("Number of bonds:", mol.GetNumBonds())
+print(f"Molecular weight: {Descriptors.MolWt(mol)}\n")
+ 
+console.print("Oxigen", style="gold1")
+mol = Chem.MolFromSmiles(oxygen_smiles_string)
+print_molecule(mol)
+
+
+
+
+ 
+"""
+img = Draw.MolsToGridImage(mols=[mol], molsPerRow=1, useSVG=True)
+with open("figures/ch01/caffeine.svg", "w") as f:
+  f.write(img.data)
+"""
