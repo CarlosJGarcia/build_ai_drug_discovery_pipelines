@@ -1,16 +1,16 @@
 import json
 from pathlib import Path
-# from rdkit import Chem
+from rdkit import Chem
 from rich.console import Console
-# from rdkit.Chem import AllChem, Descriptors, Draw, PandasTools, rdMolDescriptors
+from rdkit.Chem import AllChem, Descriptors, Draw, PandasTools, rdMolDescriptors
  
 # File name
 MOLECULES_PATH = "data/molecules.json"
 
 def print_molecule(molecule):
   # Print the SMILES string and molecular formula
-  print("SMILES string:", Chem.MolToSmiles(molecule)) 
-  print(f"Molecular formula: {rdMolDescriptors.CalcMolFormula(molecule)}\n")
+  print("SMILES string (canonical):", Chem.MolToSmiles(molecule)) 
+  print(f"Molecular formula: {rdMolDescriptors.CalcMolFormula(molecule)}")
 
   # Show properties
   print("Number of atoms:", molecule.GetNumAtoms())
@@ -29,10 +29,13 @@ molecules_load = path.read_text()
 molecules_dict = json.loads(molecules_load)
 
 # Loop through the Dictionary
-for name, smiles_string in molecules_dict.items():
-    print(f"{name.title()} - {smiles_string.title()}.")
+for name, smiles in molecules_dict.items():
+  console.print(name.title(), style="gold1")        # Print molecule name in plain text
+  print("SMILES string:", smiles)                   # Print SMILEs string 
+  mol = Chem.MolFromSmiles(smiles)    
+  print_molecule(mol)                               # Print molecular formula, number of atoms, bonds and molecular weight               
 
-print()
+
 
 """
 console.print("\nCaffeine", style="gold1")
