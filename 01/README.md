@@ -13,3 +13,8 @@ Bonds:
 - Simple
 = Double
 # Triple
+
+
+How to examine a .json file
+- Open the .json file in VSCode. The content is a sigle line
+- Right-click on the text and select "Format Document". The content will be indented and visually readable

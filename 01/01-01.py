@@ -1,4 +1,9 @@
+# Crea un diccionario y lo guarda como fichero de moléculas (JSON ? - lo que diga el libro de Python)
+# Defines a dicctionary and saves it
+
+import json
 from rdkit import Chem
+from pathlib import Path
 from rich.console import Console
 from rdkit.Chem import AllChem, Descriptors, Draw, PandasTools, rdMolDescriptors
  
@@ -16,7 +21,7 @@ cyclohexane_smiles_string = "C1CCCCC1"                                    # C6H1
 
 # Samples of the three main molecule types in biochemistry
 lactose_smiles_string = "C(C1C(C(C(C(O1)OC2C(OC(C(C2O)O)O)CO)O)O)O)O"     # Carbon hidrate
-colesterol_smiles = "CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C"     # Lypid. Barely any oxygen, so it does not dissolve in water.
+cholesterol_smiles = "CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C"     # Lypid. Barely any oxygen, so it does not dissolve in water.
 oxytocin_smiles = "CCC(C)C1C(=O)NC(C(=O)NC(C(=O)NC(CSSCC(C(=O)NC(C(=O)N2CCCC2C(=O)NC(C(=O)NCC(=O)N)CC(C)C)CC(=O)N)N)C(=O)NC(C(=O)N1)CCC(=O)N)CC(=O)N)CC3=CC=C(C=C3)O" # Small protein. Proteins are much, much bigger than carbon hidrates or lipids
 
 # Isomers: Molecules that have the same molecular formula but differ in their structural arrangement or spatial orientation. The @ denotes the spatial orientation
@@ -24,16 +29,28 @@ oxytocin_smiles = "CCC(C)C1C(=O)NC(C(=O)NC(C(=O)NC(CSSCC(C(=O)NC(C(=O)N2CCCC2C(=
 r_thalidomide_smiles = "C1CC(=O)NC(=O)[C@@H]1N2C(=O)C3=CC=CC=C3C2=O"      # R-thalidomide (therapeutic, women morning sickness)
 s_thalidomide_smiles = "C1CC(=O)NC(=O)[C@H]1N2C(=O)C3=CC=CC=C3C2=O"       #S-thalidomide (birth defects)
 
-
 # Dictionary
-molecules_list = [
-    "Caffeine", caffeine_smiles_string,
-    "Oxygen", oxygen_smiles_string,
-    "Hydrogen", hydrogen_smiles_string,
-    "Water", water_smiles_string,
-    "Salt", salt_smiles_string,
-    "Aspirine", aspirine_smiles_string
-]
+molecules_dict = {
+    "Caffeine": caffeine_smiles_string,
+    "Oxygen": oxygen_smiles_string,
+    "Hydrogen": hydrogen_smiles_string,
+    "Nitrogen": nitrogen_smiles_string,
+    "Water": water_smiles_string,
+    "Salt": salt_smiles_string,
+    "Aspirine": aspirine_smiles_string,
+    "Carbon dioxide": carbon_dioxide_smiles_string,
+    "Benzene": benzene_smiles_string,
+    "Cyclohexane": cyclohexane_smiles_string,
+    "Lactose": lactose_smiles_string,
+    "Cholesterol": cholesterol_smiles,
+    "Oxytocin": oxytocin_smiles,
+    "R-Thalidomide": r_thalidomide_smiles,
+    "S-Thalidomide": s_thalidomide_smiles
+}
+
+# File name
+MOLECULES_PATH = "data/molecules.json"
+
 
 def print_molecule(molecule):
   # Print the SMILES string and molecular formula
@@ -48,6 +65,8 @@ def print_molecule(molecule):
 
 # *main*
 console = Console()
+
+# Caffeine
 console.print("\nCaffeine", style="gold1")
 mol = Chem.MolFromSmiles(caffeine_smiles_string)
 
@@ -59,13 +78,18 @@ print(f"Molecular formula: {rdMolDescriptors.CalcMolFormula(mol)}\n")
 print("Number of atoms:", mol.GetNumAtoms())
 print("Number of bonds:", mol.GetNumBonds())
 print(f"Molecular weight: {Descriptors.MolWt(mol)}\n")
- 
+
+# Oxygen 
 console.print("Oxigen", style="gold1")
 mol = Chem.MolFromSmiles(oxygen_smiles_string)
 print_molecule(mol)
 
 
-
+# Save data on file
+console.print("Saving molecules dataset\n", style="gold1")
+path = Path(MOLECULES_PATH)
+molecules_dump = json.dumps(molecules_dict)
+path.write_text(molecules_dump)
 
  
 """
