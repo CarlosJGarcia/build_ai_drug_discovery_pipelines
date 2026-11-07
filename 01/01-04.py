@@ -1,3 +1,7 @@
+# Processes the chemical structures of FDA-approved drugs into molecular fingerprints
+# Applies PCA to reduce their dimensionality for visualization
+# Trains a logistic regression model to classify specific drug categories based on those principal components
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
