@@ -6,3 +6,6 @@
 
 # Ignore Weights & Biases run logs and caches
 wandb/
+
+# Ignore code-generated files
+01/data/molecules.json
