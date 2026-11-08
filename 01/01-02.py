@@ -1,3 +1,6 @@
+# Loads the JSON file to a Dictionary and adds the numerical values to a Dataframe structure
+# Saves the dataframe as a molecules file
+
 import json
 import pandas as pd
 from rdkit import Chem
@@ -29,27 +32,63 @@ path = Path(MOLECULES_JSON_PATH)
 molecules_load = path.read_text()
 molecules_dict = json.loads(molecules_load)
 
-"""
 # Loop through the Dictionary, calculate and print values
 for name, smiles in molecules_dict.items():
   console.print(name.title(), style="gold1")        # Print molecule name in plain text
   print("SMILES string:", smiles)                   # Print SMILEs string 
-  mol = Chem.MolFromSmiles(smiles)    
+  mol = Chem.MolFromSmiles(smiles)   
+
+  # If the molecule is Water add hydrogens
+  if name.lower() == "water":
+      mol = Chem.AddHs(mol)
+
   print_molecule(mol)                               # Print molecular formula, number of atoms, bonds and molecular weight               
-"""
+
 
 # Create a Pandas dataframe with the Dictionary
 console.print("Creating Pandas Dataframe\n", style="gold1")
 df = pd.DataFrame(list(molecules_dict.items()), columns=["Name", "SMILES"])
 df.set_index("Name", inplace=True)
 
-# 2. Create new columns using the RDKit functions
+# Add new columns with the RDKit values
 console.print("Calculating RDKit data and extending Dataframe\n", style="gold1")
-df["Formula"] = df["SMILES"].apply(lambda x: rdMolDescriptors.CalcMolFormula(Chem.MolFromSmiles(x)))
-df["Atoms"] = df["SMILES"].apply(lambda x: Chem.MolFromSmiles(x).GetNumAtoms())
-df["Bonds"] = df["SMILES"].apply(lambda x: Chem.MolFromSmiles(x).GetNumBonds())
-df["Weight"] = df["SMILES"].apply(lambda x: Descriptors.MolWt(Chem.MolFromSmiles(x)))
 
+# Create empty lists to hold the calculated data
+formulas = []
+atoms_count = []
+bonds_count = []
+weights = []
+
+# Loop through the SMILES column, calculate values and add them to the lists
+# Use .items() to get both the Name (index) and the SMILES string, so I can add hydrogens to water
+
+for name, smiles_string in df["SMILES"].items():
+    # Create the molecule object (just once per row)
+    mol = Chem.MolFromSmiles(smiles_string)
+
+    # If the molecule is Water add hydrogens
+    if name.lower() == "water":
+        mol = Chem.AddHs(mol)
+    
+    # Calculate the properties and add them to the lists
+    formulas.append(rdMolDescriptors.CalcMolFormula(mol))
+    atoms_count.append(mol.GetNumAtoms())
+    bonds_count.append(mol.GetNumBonds())
+    weights.append(Descriptors.MolWt(mol))
+
+# Assign the populated lists to new columns in the DataFrame
+df["Formula"] = formulas
+df["Atoms"] = atoms_count
+df["Bonds"] = bonds_count
+df["Weight"] = weights
+
+
+#df["Formula"] = df["SMILES"].apply(lambda x: rdMolDescriptors.CalcMolFormula(Chem.MolFromSmiles(x)))
+#df["Atoms"] = df["SMILES"].apply(lambda x: Chem.MolFromSmiles(x).GetNumAtoms())
+#df["Bonds"] = df["SMILES"].apply(lambda x: Chem.MolFromSmiles(x).GetNumBonds())
+#df["Weight"] = df["SMILES"].apply(lambda x: Descriptors.MolWt(Chem.MolFromSmiles(x)))
+
+# Save Dataframe on file
 console.print("Saving molecules dataset\n", style="gold1")
 df.to_csv(MOLECULES_CSV_PATH)
 
