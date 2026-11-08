@@ -8,9 +8,9 @@ from pathlib import Path
 from rich.console import Console
 from rdkit.Chem import AllChem, Descriptors, Draw, PandasTools, rdMolDescriptors
  
-# File name
-MOLECULES_JSON_PATH = "data/molecules.json"
+# File names
 MOLECULES_CSV_PATH = "data/molecules.csv"
+MOLECULES_JSON_PATH = "data/molecules.json"
 
 def print_molecule(molecule):
   # Print the SMILES string and molecular formula

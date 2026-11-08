@@ -2,8 +2,8 @@
 
 | File | Description | Date | Notes |
 |---------|------------------|----------------|-------|
-| version.py | Shows Python, Pytorch, CUDA and RDKit versions | Completed | xx | xx |
-| 01-01.py | Defines a dictionary of molecules and saves it as a JSON dataset | | JSON |
+| version.py | Shows Python, Pytorch, CUDA and RDKit versions | Completed | | |
+| 01-01.py | Defines a dictionary of molecules and saves it as a JSON dataset | Completed | JSON |
 | 01-02.py | Loads the JSON file, adds values calculated with RDKt and save as CSV | In Progress | xx | JSON, RDKit, Pandas |
 | 01-03.py | Loads the file and generates a .jpg for each molecule | In Progress | xx | xx |
 | 01-04.py | Data classification | In Progress | xx | xx |
