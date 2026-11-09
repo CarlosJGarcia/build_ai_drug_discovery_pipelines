@@ -1,15 +1,26 @@
-# Processes the chemical structures of FDA-approved drugs into molecular fingerprints
-# Applies PCA to reduce their dimensionality for visualization
-# Trains a logistic regression model to classify specific drug categories based on those principal components
+# Processes the chemical structures of FDA-approved drugs into molecular ECFP6 fingerprints
+# Applies PCA (Principal Component Analysis) to reduce the dimensionality of the fingerprints (from 1024D to 4D)
+# Trains a logistic regression model to classify specific drug categories based on their principal components
+# Scikit-learn is the right library as it natively supports Logistic Regression. Using Pytorch or Keras would be overkill as they require to implement id from scratch
 
-import matplotlib.pyplot as plt
+# 1. Define (instantiate) a logistic regression object
+# 2. Train the model using the PCA-reduced molecules (data) and the know categories (labels)
+
+# Next steps, not in this script:
+# 3. Test the trained model on a subset of molecules to verify its accuracy
+# 4. Inference. Take a molecule, calculate the fingerprint, apply the PCA, pass it to the model. The model predicts to which category it belongs
+
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 from rdkit.Chem import PandasTools
 from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
+
+# Pairplot (pair grid plot). Visualization that shows the relationships between the variables in a dataset in a grid.
+PGA_PAIRPLOT_PATH = "data/pca_pairplot.png"
 
 # 1. Load Data
 print("Loading FDA approved drugs dataset...")
@@ -51,8 +62,8 @@ pairplot_fig = sns.pairplot(
     vars=['PC1', 'PC2', 'PC3', 'PC4'],
     palette='viridis'
 )
-pairplot_fig.savefig("pca_pairplot.png")
-print("Saved pairplot to 'pca_pairplot.png'")
+pairplot_fig.savefig(PGA_PAIRPLOT_PATH)
+print(f"Pairplot saved to {PGA_PAIRPLOT_PATH}")
 
 # 6. Binary Classification Targets
 fda_approved_df['cillin'] = (
@@ -84,8 +95,8 @@ probs = lr_model_cillin.predict_proba(grid_df)[:, 1].reshape(xx.shape)
 
 print(f"Decision grid evaluated over shape {probs.shape}.")
 print(f"Min probability: {probs.min():.4f}, Max probability: {probs.max():.4f}")
-print("Pipeline run completed successfully.")
+print("Pipeline run completed successfully.\n")
 
-# Two adaptations are possible for this code
+# Two adaptations are possible for this code, as an academic exercise. For production, SCIKit-Learn is the right choice.
 # 1. Move from Scikt-learn to Pytorch
 # 2. Move from play Pytorch to Pytorch-CUDA, initializing a device, moving the objects to GPU-VRAM and doing the calculations there
