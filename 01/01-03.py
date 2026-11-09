@@ -37,6 +37,8 @@ for index, row in df.iterrows():
     img = Draw.MolsToGridImage(mols=[mol], molsPerRow=1, useSVG=False)
     
     # Save the JPG using the molecule name
-    jpg_filename = f"{name}.jpg"
+    name = name.lower()
+    name = name.replace(" ", "_")                 # Replace space with underscore if there is a space in the name (e.g. Carbon Dioxide)
+    jpg_filename = f"data/{name}.jpg"
     img.save(jpg_filename)
     print(f"Saved image to: {jpg_filename}\n")
