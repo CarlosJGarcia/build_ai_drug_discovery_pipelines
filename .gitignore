@@ -8,6 +8,7 @@
 wandb/
 
 # Ignore code-generated files
+01/data/*.jpg
 01/data/molecules.csv
 01/data/molecules.json
-01/data/*.jpg
+01/data/pca_pairplot.png
