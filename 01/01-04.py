@@ -14,23 +14,27 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from rich.console import Console
 from rdkit.Chem import PandasTools
 from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 
-# Pairplot (pair grid plot). Visualization that shows the relationships between the variables in a dataset in a grid.
-PGA_PAIRPLOT_PATH = "data/pca_pairplot.png"
+# Pairplot (grid of pair plots). Visualization that shows the relationships between the variables in a dataset in a grid.
+FDA_APPROVED_PATH = "data/fda_approved_drugs.csv"
+PCA_PAIRPLOT_PATH = "data/pca_pairplot.png"
+
+# *main*
+console = Console()
 
 # 1. Load Data
-print("Loading FDA approved drugs dataset...")
-fda_approved_df = pd.read_csv('data/fda_approved_drugs.csv', sep=',')
+console.print("\nLoading FDA approved drugs dataset.", style="gold1")
+fda_approved_df = pd.read_csv(FDA_APPROVED_PATH, sep=',')
 print(f"Total rows loaded: {len(fda_approved_df)}")
 
 # 2. RDKit Molecule Parsing & Filtering
-PandasTools.AddMoleculeColumnToFrame(
-    fda_approved_df, smilesCol='Smiles', molCol='ROMol'
-)
+console.print("\nFingerprinting.", style="gold1")
+PandasTools.AddMoleculeColumnToFrame(fda_approved_df, smilesCol='Smiles', molCol='ROMol')
 fda_approved_df = fda_approved_df[~fda_approved_df['ROMol'].isnull()]
 print(f"Valid molecules parsed: {len(fda_approved_df)}")
 
@@ -42,6 +46,7 @@ fda_approved_df['ECFP6'] = fda_approved_df['ROMol'].apply(
 )
 
 # 4. Dimensionality Reduction with PCA
+console.print("\nReducing number of dimensions", style="gold1")
 print("Fitting PCA (n_components=4)...")
 X = np.array([x for x in fda_approved_df['ECFP6']])
 pca = PCA(n_components=4, random_state=42)
@@ -54,40 +59,36 @@ fda_approved_df['PC4'] = pca_drugs.T[3]
 
 print(f"PCA Explained Variance Ratio: {pca.explained_variance_ratio_}")
 
-# 5. Visualizing Pairs (Display/Save)
-print("Generating Seaborn pairplot...")
+# 5. Generate the pairplot using Seaborn sns.pairplot()
+console.print("\nGenerating Seaborn pairplot.", style="gold1")
 pairplot_fig = sns.pairplot(
     fda_approved_df,
     hue='USAN Stem',
     vars=['PC1', 'PC2', 'PC3', 'PC4'],
     palette='viridis'
 )
-pairplot_fig.savefig(PGA_PAIRPLOT_PATH)
-print(f"Pairplot saved to {PGA_PAIRPLOT_PATH}")
+pairplot_fig.savefig(PCA_PAIRPLOT_PATH)
+print(f"Pairplot saved to {PCA_PAIRPLOT_PATH}")
 
 # 6. Binary Classification Targets
-fda_approved_df['cillin'] = (
-    fda_approved_df['USAN Stem'] == '-cillin'
-).astype(int)
-fda_approved_df['olol'] = (
-    fda_approved_df['USAN Stem'] == '-olol'
-).astype(int)
+fda_approved_df['cillin'] = (fda_approved_df['USAN Stem'] == '-cillin').astype(int)
+fda_approved_df['olol'] = (fda_approved_df['USAN Stem'] == '-olol').astype(int)
 
 cillin_count = fda_approved_df['cillin'].sum()
 olol_count = fda_approved_df['olol'].sum()
 print(f"Target distribution -> '-cillin': {cillin_count}, '-olol': {olol_count}")
 
 # 7. Logistic Regression on PC1 and PC3
-print("Training Logistic Regression on [PC1, PC3] for '-cillin'...")
+console.print("\nDefine Logistic Regression model on [PC1, PC3] for '-cillin'.", style="gold1", highlight=False)
 feature_cols = ['PC1', 'PC3']
 lr_model_cillin = LogisticRegression()
+
+
+console.print("\nTraining.", style="gold1")
 lr_model_cillin.fit(fda_approved_df[feature_cols], fda_approved_df.cillin)
 
 # 8. Decision Boundary Grid
-xx, yy = np.mgrid[
-    fda_approved_df.PC1.min():fda_approved_df.PC1.max():0.01,
-    fda_approved_df.PC3.min():fda_approved_df.PC3.max():0.01
-]
+xx, yy = np.mgrid[fda_approved_df.PC1.min():fda_approved_df.PC1.max():0.01,fda_approved_df.PC3.min():fda_approved_df.PC3.max():0.01]
 
 # Pass a DataFrame with matching column names to silence the scikit-learn warning
 grid_df = pd.DataFrame(np.c_[xx.ravel(), yy.ravel()], columns=feature_cols)
@@ -98,5 +99,5 @@ print(f"Min probability: {probs.min():.4f}, Max probability: {probs.max():.4f}")
 print("Pipeline run completed successfully.\n")
 
 # Two adaptations are possible for this code, as an academic exercise. For production, SCIKit-Learn is the right choice.
-# 1. Move from Scikt-learn to Pytorch
-# 2. Move from play Pytorch to Pytorch-CUDA, initializing a device, moving the objects to GPU-VRAM and doing the calculations there
+# 1. Move from Scikit-learn to Pytorch
+# 2. Move from Pytorch to Pytorch-CUDA, initializing a device, moving the objects to GPU-VRAM and doing the calculations there
