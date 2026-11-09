@@ -1,12 +1,12 @@
-# Loads the JSON file to a Dictionary and adds the numerical values to a Dataframe structure
-# Saves the dataframe as a molecules file
+# Loads the JSON file to a Dictionary, moves the information to a Pandas Dataframe and adds numerical values calculated with RDKit
+# Saves the dataframe as a molecules.csv file
 
 import json
 import pandas as pd
 from rdkit import Chem
 from pathlib import Path
 from rich.console import Console
-from rdkit.Chem import AllChem, Descriptors, Draw, PandasTools, rdMolDescriptors
+from rdkit.Chem import Descriptors, rdMolDescriptors
  
 # File names
 MOLECULES_CSV_PATH = "data/molecules.csv"
@@ -20,13 +20,13 @@ def print_molecule(molecule):
   # Show properties
   print("Number of atoms:", molecule.GetNumAtoms())
   print("Number of bonds:", molecule.GetNumBonds())
-  print(f"Molecular weight: {Descriptors.MolWt(molecule)}\n")
+  print(f"Molecular weight: {Descriptors.MolWt(molecule)} g/mol\n")
 
 
 # *main*
 console = Console()
 
-# Load the file to a Dictonary
+# Load the file to a Dictionary
 console.print("\nReading molecules dataset\n", style="gold1")
 path = Path(MOLECULES_JSON_PATH)
 molecules_load = path.read_text()
@@ -82,7 +82,7 @@ df["Atoms"] = atoms_count
 df["Bonds"] = bonds_count
 df["Weight"] = weights
 
-
+# This would be a more concise approach, using lambda function, but it is difficult to understand
 #df["Formula"] = df["SMILES"].apply(lambda x: rdMolDescriptors.CalcMolFormula(Chem.MolFromSmiles(x)))
 #df["Atoms"] = df["SMILES"].apply(lambda x: Chem.MolFromSmiles(x).GetNumAtoms())
 #df["Bonds"] = df["SMILES"].apply(lambda x: Chem.MolFromSmiles(x).GetNumBonds())
@@ -91,33 +91,3 @@ df["Weight"] = weights
 # Save Dataframe on file
 console.print("Saving molecules dataset\n", style="gold1")
 df.to_csv(MOLECULES_CSV_PATH)
-
-
-
-
-"""
-console.print("\nCaffeine", style="gold1")
-mol = Chem.MolFromSmiles(caffeine_smiles_string)
-
-# Print the SMILES string
-print("SMILES string:", Chem.MolToSmiles(mol)) 
-print(f"Molecular formula: {rdMolDescriptors.CalcMolFormula(mol)}\n")
-
-# Show properties
-print("Number of atoms:", mol.GetNumAtoms())
-print("Number of bonds:", mol.GetNumBonds())
-print(f"Molecular weight: {Descriptors.MolWt(mol)}\n")
- 
-console.print("Oxigen", style="gold1")
-mol = Chem.MolFromSmiles(oxygen_smiles_string)
-print_molecule(mol)
-"""
-
-
-
- 
-"""
-img = Draw.MolsToGridImage(mols=[mol], molsPerRow=1, useSVG=True)
-with open("figures/ch01/caffeine.svg", "w") as f:
-  f.write(img.data)
-"""

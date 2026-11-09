@@ -10,7 +10,8 @@ oxygen_smiles_string = "O=O"                               # Oxygen molecule (O2
 carbon_dioxide_smiles_string = "O=C=O"                     # CO2
 nitrogen_smiles_string = "N#N"                             # Nitrogen (N2). Two N atoms with a triple bond, represented by the hash symbol.
 water_smiles_string = "O"                                  # SMILES notation assumes the standard bonds, which for one atom of O is two atoms of H
-salt_smiles_string = "[Na+].[Cl-]"                         # Cl and Na with an ionic bond. Cl takes one electron from Na
+helium_smiles = "[He]"                                     # Noble gas. It is stable and does not form bonds.
+salt_smiles_string = "[Na+].[Cl-]"                         # Cl and Na with an "ionic bond". Cl takes one electron from Na. The atraction between the two ions is not really a bond but an "ionic interaction" so RDKit does not count when using GetNumBonds()
 aspirin_smiles_string = "CC(=O)Oc1ccccc1C(=O)O"
 caffeine_smiles_string = "CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
 benzene_smiles_string = "c1ccccc1"                                        # C6H6 Each carbon atom has an H and is linked to two other carbons with one single and one double bond. The molecule is planar because the double bonds are rigid.
@@ -19,7 +20,7 @@ cyclohexane_smiles_string = "C1CCCCC1"                                    # C6H1
 # Samples of the three main molecule types in biochemistry
 lactose_smiles_string = "C(C1C(C(C(C(O1)OC2C(OC(C(C2O)O)O)CO)O)O)O)O"     # Carbohydrate
 cholesterol_smiles = "CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C"    # Lipid. Barely any oxygen, so it does not dissolve in water.
-oxytocin_smiles = "CCC(C)C1C(=O)NC(C(=O)NC(C(=O)NC(CSSCC(C(=O)NC(C(=O)N2CCCC2C(=O)NC(C(=O)NCC(=O)N)CC(C)C)CC(=O)N)N)C(=O)NC(C(=O)N1)CCC(=O)N)CC(=O)N)CC3=CC=C(C=C3)O" # Small protein. Proteins are much, much bigger than carbohydrates or lipids
+oxytocin_smiles = "CCC(C)C1C(=O)NC(C(=O)NC(C(=O)NC(CSSCC(C(=O)NC(C(=O)N2CCCC2C(=O)NC(C(=O)NCC(=O)N)CC(C)C)CC(=O)N)N)C(=O)NC(C(=O)N1)CCC(=O)N)CC(=O)N)CC3=CC=C(C=C3)O" # Small protein (in reality is a peptide rather than a protein). Proteins are much, much bigger than carbohydrates or lipids.
 
 # Isomers: Molecules that have the same molecular formula but differ in their structural arrangement or spatial orientation. The @ denotes the spatial orientation
 # In vivo chiral inversion. Even if a patient is given 100% pure R-thalidomide, the metabolic system 'automatically' converts R to the dangerous S and back in the bloodstream
@@ -41,6 +42,7 @@ molecules_dict = {
     "Nitrogen": nitrogen_smiles_string,
     "Water": water_smiles_string,
     "Salt": salt_smiles_string,
+    "Helium": helium_smiles,
     "Aspirin": aspirin_smiles_string,
     "Carbon dioxide": carbon_dioxide_smiles_string,
     "Benzene": benzene_smiles_string,
