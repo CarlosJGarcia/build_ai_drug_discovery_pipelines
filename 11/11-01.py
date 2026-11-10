@@ -1,3 +1,5 @@
+# GNN: Graph Neural Network
+
 import os
 import numpy as np
 import networkx as nx
@@ -48,20 +50,11 @@ def smile_to_graph(smiles: str) -> Tuple[int, List, List]:
 # Generate 78-dimensional Feature Vector for a Single Atom
 def atom_features(atom):
     features = []
-    features += one_of_k_encoding_unk(
-        atom.GetSymbol(), ATOM_SYMBOLS
-    )
-    features += one_of_k_encoding_unk(
-        atom.GetDegree(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    )
-    features += one_of_k_encoding_unk(
-        atom.GetTotalNumHs(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    )
-    features += one_of_k_encoding_unk(
-        atom.GetImplicitValence(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    )
+    features += one_of_k_encoding_unk(atom.GetSymbol(), ATOM_SYMBOLS)
+    features += one_of_k_encoding_unk(atom.GetDegree(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    features += one_of_k_encoding_unk(atom.GetTotalNumHs(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    features += one_of_k_encoding_unk(atom.GetImplicitValence(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     features += [int(atom.GetIsAromatic())]
- 
     return np.array(features, dtype=np.float32)
 
 
@@ -71,9 +64,7 @@ def target_to_graph(target_key, target_sequence, contact_dir, aln_dir):
     contact_file = os.path.join(contact_dir, target_key + '.npy')
     contact_map = np.load(contact_file)
     assert contact_map.shape[0] == target_size
-    contact_map += np.eye(
-        contact_map.shape[0]
-    )
+    contact_map += np.eye(contact_map.shape[0])
  
     threshold = CONFIG['contact_map_threshold']
     index_row, index_col = np.where(contact_map >= threshold)
@@ -82,12 +73,8 @@ def target_to_graph(target_key, target_sequence, contact_dir, aln_dir):
         target_edge_index.append([i, j])
  
     aln_file = os.path.join(aln_dir, target_key + '.aln')
-    target_feature = compute_target_feature(
-        aln_file, target_sequence
-    )
-    target_edge_index = np.array(
-        target_edge_index
-    )
+    target_feature = compute_target_feature(aln_file, target_sequence)
+    target_edge_index = np.array(target_edge_index)
  
     return target_size, target_feature, target_edge_index
 
@@ -98,12 +85,8 @@ def seq_feature(pro_seq: str) -> np.ndarray:
     pro_property = np.zeros((len(pro_seq), 12))
  
     for i in range(len(pro_seq)):
-        pro_hot[i, :] = one_of_k_encoding_unk(
-            pro_seq[i], AMINO_ACIDS
-        )
-        pro_property[i, :] = residue_features(
-            pro_seq[i]
-        )
+        pro_hot[i, :] = one_of_k_encoding_unk(pro_seq[i], AMINO_ACIDS)
+        pro_property[i, :] = residue_features(pro_seq[i])
  
     return np.concatenate((pro_hot, pro_property), axis=1)
 
@@ -123,13 +106,10 @@ def dic_normalize(dic):
 
 # Calculating a Position-Specific Scoring Matrix (PSSM)
 def PSSM_calculation(aln_file: str, pro_seq: str) -> np.ndarray:
-    pfm_mat = np.zeros(
-        (len(AMINO_ACIDS), len(pro_seq))
-    )
+    pfm_mat = np.zeros((len(AMINO_ACIDS), len(pro_seq)))
     with open(aln_file, 'r') as f:
         lines = f.readlines()
-        line_count = sum(
-            1 for line in lines if len(line.strip()) == len(pro_seq))
+        line_count = sum(1 for line in lines if len(line.strip()) == len(pro_seq))
  
         for line in lines:
             if len(line.strip()) != len(pro_seq):
@@ -140,12 +120,10 @@ def PSSM_calculation(aln_file: str, pro_seq: str) -> np.ndarray:
                 if res not in AMINO_ACIDS:
                     count += 1
                     continue
-                pfm_mat[AMINO_ACIDS.index(res), count] \
-                    += 1
+                pfm_mat[AMINO_ACIDS.index(res), count] += 1
                 count += 1
  
     pseudocount = CONFIG['pssm_pseudocount']
-    # FIXED: Added the missing division symbol (/)
     ppm_mat = ((pfm_mat + pseudocount / 20) / (float(line_count) + pseudocount))
     pssm_mat = ppm_mat
     return pssm_mat
@@ -165,15 +143,9 @@ class DrugTargetGNN(nn.Module):
         super(DrugTargetGNN, self).__init__()
         
         # Molecular Graph Layers
-        self.mol_conv1 = GINConv(nn.Sequential(
-            nn.Linear(num_features_mol, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, hidden_dim)
-        ))
-        self.mol_conv2 = GINConv(nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, hidden_dim)
-        ))
-        self.mol_conv3 = GINConv(nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, hidden_dim)
-        ))
+        self.mol_conv1 = GINConv(nn.Sequential(nn.Linear(num_features_mol, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, hidden_dim)))
+        self.mol_conv2 = GINConv(nn.Sequential(nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, hidden_dim)))
+        self.mol_conv3 = GINConv(nn.Sequential(nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, hidden_dim)))
         
         self.mol_fc_g1 = nn.Linear(hidden_dim, hidden_dim)
         self.mol_fc_g2 = nn.Linear(hidden_dim, hidden_dim)
