@@ -1,4 +1,5 @@
 # GNN: Graph Neural Network
+# DTA: Drug-Target Affinity
 
 import os
 import numpy as np
@@ -137,7 +138,7 @@ def compute_target_feature(aln_file: str, pro_seq: str) -> np.ndarray:
     return np.concatenate
 
 
-# --- WRAPPED NEURAL NETWORK CLASS ---
+# Definition of the Graph Neural Network 
 class DrugTargetGNN(nn.Module):
     def __init__(self, num_features_mol=78, num_features_pro=54, hidden_dim=128):
         super(DrugTargetGNN, self).__init__()
